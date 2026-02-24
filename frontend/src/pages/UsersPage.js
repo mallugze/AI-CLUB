@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { usersAPI } from '../api';
+import API, { usersAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import API from '../api';
 
 const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
 
@@ -32,7 +31,7 @@ export default function UsersPage() {
 
   const changeRole = async (userId, newRole) => {
     try {
-      await API.put(`/users/${userId}/role`, { role: newRole });
+      await usersAPI.updateRole(userId, newRole);
       setMessage('Role updated successfully!');
       fetchUsers();
       setTimeout(() => setMessage(''), 3000);
