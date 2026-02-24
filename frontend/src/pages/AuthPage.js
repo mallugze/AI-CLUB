@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'member' });
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -18,7 +18,7 @@ export default function AuthPage() {
     try {
       const res = isLogin
         ? await authAPI.login({ email: form.email, password: form.password })
-        : await authAPI.register(form);
+        : await authAPI.register({ name: form.name, email: form.email, password: form.password });
       login(res.data.token, res.data.user);
       navigate('/events');
     } catch (err) {
@@ -38,12 +38,10 @@ export default function AuthPage() {
     }} className="grid-bg">
       <div className="scanline" />
 
-      {/* Floating orbs */}
       <div style={{ position: 'fixed', top: '10%', left: '5%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%)', animation: 'float 6s ease-in-out infinite', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%)', animation: 'float 8s ease-in-out infinite 2s', pointerEvents: 'none' }} />
 
       <div style={{ width: '100%', maxWidth: 420 }} className="fade-in">
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
             width: 64, height: 64,
@@ -59,9 +57,7 @@ export default function AuthPage() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>Event Management Platform</p>
         </div>
 
-        {/* Card */}
         <div className="card" style={{ padding: '2rem' }}>
-          {/* Tabs */}
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'var(--bg)', borderRadius: 10, padding: 4 }}>
             {['Login', 'Register'].map((tab) => (
               <button key={tab} onClick={() => { setIsLogin(tab === 'Login'); setError(''); }}
@@ -98,16 +94,6 @@ export default function AuthPage() {
               <input className="input" type="password" placeholder="••••••••" value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })} required />
             </div>
-
-            {!isLogin && (
-              <div>
-                <label className="label">Role</label>
-                <select className="input" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-                  <option value="member">Member</option>
-                  <option value="admin">Admin (Committee)</option>
-                </select>
-              </div>
-            )}
 
             <button type="submit" className="btn btn-primary" disabled={loading}
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', marginTop: '0.5rem', fontSize: '0.95rem' }}>

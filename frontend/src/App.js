@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import UsersPage from './pages/UsersPage';
 import './index.css';
 
 function PrivateRoute({ children }) {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/events" element={<PrivateRoute><EventsPage /></PrivateRoute>} />
           <Route path="/events/:id" element={<PrivateRoute><EventDetailPage /></PrivateRoute>} />
           <Route path="/leaderboard" element={<PrivateRoute><LeaderboardPage /></PrivateRoute>} />
+          <Route path="/users" element={<PrivateRoute><UsersPage /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/events" />} />
         </Routes>
       </BrowserRouter>

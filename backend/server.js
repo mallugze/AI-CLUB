@@ -9,6 +9,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'ai_club_secret_key_change_in_production';
 
+// ─── SUPER ADMIN (hardcoded) ──────────────────────────────────────────────────
+const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
+const SUPER_ADMIN_PASSWORD = 'yokoso20';
+const SUPER_ADMIN_NAME = 'Mallug';
+
 app.use(cors());
 app.use(express.json());
 
@@ -80,6 +85,13 @@ db.serialize(() => {
     assigned_by INTEGER,
     assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  // Auto-create super admin if not exists
+  const hash = bcrypt.hashSync(SUPER_ADMIN_PASSWORD, 10);
+  db.run(
+    `INSERT OR IGNORE INTO users (name, email, password, role) VALUES (?, ?, ?, 'admin')`,
+    [SUPER_ADMIN_NAME, SUPER_ADMIN_EMAIL, hash]
+  );
 });
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
@@ -99,14 +111,20 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
+const superAdminOnly = (req, res, next) => {
+  if (req.user.email !== SUPER_ADMIN_EMAIL) return res.status(403).json({ error: 'Super admin only' });
+  next();
+};
+
 // ─── AUTH ROUTES ─────────────────────────────────────────────────────────────
+// Register — everyone becomes member, no role selection
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'All fields required' });
+  if (email === SUPER_ADMIN_EMAIL) return res.status(400).json({ error: 'Email already exists' });
   const hash = bcrypt.hashSync(password, 10);
-  const userRole = role === 'admin' ? 'admin' : 'member';
   try {
-    const result = await run('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', [name, email, hash, userRole]);
+    const result = await run('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', [name, email, hash, 'member']);
     const user = await get('SELECT id, name, email, role FROM users WHERE id = ?', [result.lastID]);
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user });
@@ -124,6 +142,23 @@ app.post('/api/auth/login', async (req, res) => {
   }
   const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
   res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+});
+
+// ─── USER MANAGEMENT ─────────────────────────────────────────────────────────
+app.get('/api/users', auth, async (req, res) => {
+  const users = await all('SELECT id, name, email, role, created_at FROM users ORDER BY name');
+  res.json(users);
+});
+
+// Only super admin can promote/demote users
+app.put('/api/users/:id/role', auth, superAdminOnly, async (req, res) => {
+  const { role } = req.body;
+  const targetUser = await get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+  if (!targetUser) return res.status(404).json({ error: 'User not found' });
+  if (targetUser.email === SUPER_ADMIN_EMAIL) return res.status(400).json({ error: 'Cannot change super admin role' });
+  if (!['admin', 'member'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+  await run('UPDATE users SET role = ? WHERE id = ?', [role, req.params.id]);
+  res.json({ success: true });
 });
 
 // ─── EVENT ROUTES ─────────────────────────────────────────────────────────────
@@ -175,16 +210,14 @@ app.post('/api/events/:eventId/teams', auth, async (req, res) => {
   const { name, memberNames } = req.body;
   const eventId = parseInt(req.params.eventId);
   if (!name) return res.status(400).json({ error: 'Team name required' });
+  if (req.user.role === 'admin') return res.status(403).json({ error: 'Admins cannot register teams' });
   const extraMembers = (memberNames || []).filter(m => m.trim() !== '');
-  // Total = creator + extra members
   const totalCount = 1 + extraMembers.length;
   if (totalCount < 2) return res.status(400).json({ error: 'Minimum 2 members required' });
   if (totalCount > 4) return res.status(400).json({ error: 'Maximum 4 members allowed' });
   const result = await run('INSERT INTO teams (name, event_id, created_by) VALUES (?, ?, ?)', [name, eventId, req.user.id]);
   const teamId = result.lastID;
-  // Store creator by user id
   await run('INSERT INTO team_members (team_id, user_id, member_name) VALUES (?, ?, ?)', [teamId, req.user.id, req.user.name]);
-  // Store extra members by name only (user_id = 0)
   for (const mname of extraMembers) {
     await run('INSERT INTO team_members (team_id, user_id, member_name) VALUES (?, ?, ?)', [teamId, 0, mname.trim()]);
   }
@@ -216,6 +249,7 @@ app.post('/api/scores', auth, adminOnly, async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── LEADERBOARD ROUTES ───────────────────────────────────────────────────────
 app.get('/api/leaderboard/event/:eventId', auth, async (req, res) => {
   const teams = await all(`
     SELECT t.id, t.name, s.score, s.note, s.assigned_at,
@@ -251,11 +285,6 @@ app.get('/api/leaderboard/team-history/:teamId', auth, async (req, res) => {
     ORDER BY s.assigned_at DESC
   `, [req.params.teamId]);
   res.json(history);
-});
-
-app.get('/api/users', auth, async (req, res) => {
-  const users = await all('SELECT id, name, email, role, created_at FROM users ORDER BY name');
-  res.json(users);
 });
 
 app.listen(PORT, () => console.log(`AI Club server running on port ${PORT}`));

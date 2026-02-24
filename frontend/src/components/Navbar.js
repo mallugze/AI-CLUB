@@ -2,10 +2,13 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
+
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
 
   const handleLogout = () => {
     logout();
@@ -28,7 +31,6 @@ export default function Navbar() {
       height: '64px',
       gap: '2rem',
     }}>
-      {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         <div style={{
           width: 36, height: 36,
@@ -43,19 +45,21 @@ export default function Navbar() {
         </span>
       </Link>
 
-      {/* Nav links */}
       <div style={{ display: 'flex', gap: '0.5rem', flex: 1 }}>
         <NavLink to="/events" active={isActive('/events')}>Events</NavLink>
         <NavLink to="/leaderboard" active={isActive('/leaderboard')}>Leaderboard</NavLink>
+        {isSuperAdmin && (
+          <NavLink to="/users" active={isActive('/users')}>👑 Manage Users</NavLink>
+        )}
       </div>
 
-      {/* User info */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text)' }}>{user?.name}</div>
           <div style={{ fontSize: '0.7rem' }}>
-            <span className={`badge badge-${isAdmin ? 'purple' : 'cyan'}`}>
-              {isAdmin ? '⚙ Admin' : '● Member'}
+            <span className={`badge ${isSuperAdmin ? '' : `badge-${isAdmin ? 'purple' : 'cyan'}`}`}
+              style={isSuperAdmin ? { background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' } : {}}>
+              {isSuperAdmin ? '👑 Super Admin' : isAdmin ? '⚙ Admin' : '● Member'}
             </span>
           </div>
         </div>
