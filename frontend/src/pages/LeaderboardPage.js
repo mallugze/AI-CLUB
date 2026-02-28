@@ -129,26 +129,7 @@ export default function LeaderboardPage() {
               {/* 1ST PLACE — appears last, rises from bottom with rockets */}
               {rocketLaunch && firstPlace && (
                 <div style={{ position: 'relative', marginBottom: '0.4rem' }}>
-                  {/* Left Rocket */}
-                  <div className="rocket-left" style={{
-                    position: 'absolute', left: -50, top: '50%',
-                    transform: 'translateY(-50%)', zIndex: 20,
-                    fontSize: '1.8rem', pointerEvents: 'none',
-                    display: 'flex', alignItems: 'center',
-                  }}>
-                    🚀
-                    <span className="flame" style={{ fontSize: '1rem', marginLeft: -4 }}>🔥</span>
-                  </div>
-                  {/* Right Rocket */}
-                  <div className="rocket-right" style={{
-                    position: 'absolute', right: -50, top: '50%',
-                    transform: 'translateY(-50%)', zIndex: 20,
-                    fontSize: '1.8rem', pointerEvents: 'none',
-                    display: 'flex', alignItems: 'center',
-                  }}>
-                    <span className="flame" style={{ fontSize: '1rem', marginRight: -4 }}>🔥</span>
-                    🚀
-                  </div>
+
 
                   {/* First place card */}
                   <div className={`rise-up ${firstLanded ? 'gold-shine' : ''}`} style={{
