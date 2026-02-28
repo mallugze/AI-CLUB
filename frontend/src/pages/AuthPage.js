@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
+import logoBase64 from '../logo';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -40,7 +41,7 @@ export default function AuthPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1rem' }}>
-            <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
+            <img src={logoBase64} alt="AI Yuga" style={{
               width: 130, height: 130,
               animation: 'pulse-glow 3s ease-in-out infinite',
               objectFit: 'contain',

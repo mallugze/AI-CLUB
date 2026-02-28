@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logoBase64 from '../logo';
 
 const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
 
@@ -29,7 +30,7 @@ export default function Navbar() {
     }}>
       {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
-        <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
+        <img src={logoBase64} alt="AI Yuga" style={{
           width: 48, height: 48,
           borderRadius: '50%',
           boxShadow: '0 0 12px rgba(0,212,255,0.5)',
