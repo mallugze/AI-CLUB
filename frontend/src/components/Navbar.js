@@ -10,11 +10,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
+  const handleLogout = () => { logout(); navigate('/login'); };
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -29,39 +25,47 @@ export default function Navbar() {
       display: 'flex',
       alignItems: 'center',
       height: '64px',
-      gap: '2rem',
+      gap: '1.5rem',
     }}>
-      <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <div style={{
-          width: 36, height: 36,
-          background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
-          borderRadius: 8,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '1rem',
-          boxShadow: 'var(--glow)',
-        }}>⚡</div>
-        <span style={{ fontFamily: 'Orbitron', fontWeight: 700, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '0.1em' }}>
-          AI CLUB
-        </span>
+      {/* Logo */}
+      <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+        <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
+          width: 42, height: 42, borderRadius: '50%',
+          border: '2px solid var(--accent)',
+          boxShadow: '0 0 12px rgba(0,212,255,0.5)',
+          objectFit: 'cover',
+        }} />
+        <div>
+          <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '0.1em', lineHeight: 1 }}>
+            AI YUGA
+          </div>
+          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', letterSpacing: '0.05em', lineHeight: 1.2 }}>
+            PDA COLLEGE • KALABURAGI
+          </div>
+        </div>
       </Link>
 
-      <div style={{ display: 'flex', gap: '0.5rem', flex: 1 }}>
+      {/* Nav links */}
+      <div style={{ display: 'flex', gap: '0.25rem', flex: 1 }}>
         <NavLink to="/events" active={isActive('/events')}>Events</NavLink>
+        <NavLink to="/activities" active={isActive('/activities')}>🎫 Activities</NavLink>
         <NavLink to="/leaderboard" active={isActive('/leaderboard')}>Leaderboard</NavLink>
-        {isSuperAdmin && (
-          <NavLink to="/users" active={isActive('/users')}>👑 Manage Users</NavLink>
-        )}
+        {isSuperAdmin && <NavLink to="/users" active={isActive('/users')}>👑 Users</NavLink>}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      {/* User info */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text)' }}>{user?.name}</div>
-          <div style={{ fontSize: '0.7rem' }}>
-            <span className={`badge ${isSuperAdmin ? '' : `badge-${isAdmin ? 'purple' : 'cyan'}`}`}
-              style={isSuperAdmin ? { background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' } : {}}>
-              {isSuperAdmin ? '👑 Super Admin' : isAdmin ? '⚙ Admin' : '● Member'}
-            </span>
-          </div>
+          <span className={`badge`}
+            style={isSuperAdmin
+              ? { background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', fontSize: '0.65rem' }
+              : isAdmin
+              ? { background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)', fontSize: '0.65rem' }
+              : { background: 'rgba(0,212,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(0,212,255,0.3)', fontSize: '0.65rem' }
+            }>
+            {isSuperAdmin ? '👑 Super Admin' : isAdmin ? '⚙ Admin' : '● Member'}
+          </span>
         </div>
         <button onClick={handleLogout} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
           Logout
@@ -75,15 +79,15 @@ function NavLink({ to, active, children }) {
   return (
     <Link to={to} style={{
       textDecoration: 'none',
-      padding: '0.5rem 1rem',
+      padding: '0.5rem 0.9rem',
       borderRadius: 8,
-      fontSize: '0.875rem',
+      fontSize: '0.82rem',
       fontWeight: 600,
       color: active ? 'var(--accent)' : 'var(--text-muted)',
       background: active ? 'rgba(0,212,255,0.1)' : 'transparent',
       border: active ? '1px solid rgba(0,212,255,0.2)' : '1px solid transparent',
       transition: 'all 0.2s',
-      letterSpacing: '0.03em',
+      whiteSpace: 'nowrap',
     }}>{children}</Link>
   );
 }

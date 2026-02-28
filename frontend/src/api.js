@@ -41,4 +41,14 @@ export const usersAPI = {
   updateRole: (id, role) => API.put(`/users/${id}/role`, { role }),
 };
 
+export const activitiesAPI = {
+  getAll: () => API.get('/activities'),
+  create: (data) => API.post('/activities', data),
+  update: (id, data) => API.put(`/activities/${id}`, data),
+  delete: (id) => API.delete(`/activities/${id}`),
+  book: (id) => API.post(`/activities/${id}/book`),
+  cancelBook: (id) => API.delete(`/activities/${id}/book`),
+  getBookings: (id) => API.get(`/activities/${id}/bookings`),
+};
+
 export default API;
