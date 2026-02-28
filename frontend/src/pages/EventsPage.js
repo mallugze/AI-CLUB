@@ -144,12 +144,10 @@ export default function EventsPage() {
               </circle>
             </svg>
             <img src="/logo.png" alt="AI Yuga" style={{
-              width: 140, height: 140, borderRadius: '50%',
-              border: '3px solid var(--accent)',
-              boxShadow: '0 0 40px rgba(0,212,255,0.7), 0 0 80px rgba(0,212,255,0.3)',
+              width: 150, height: 150,
+              filter: 'drop-shadow(0 0 30px rgba(0,212,255,0.8))',
               position: 'relative', zIndex: 1,
-              objectFit: 'cover',
-              objectPosition: 'center',
+              objectFit: 'contain',
               display: 'block',
             }} />
           </div>
