@@ -149,7 +149,8 @@ export default function EventsPage() {
               boxShadow: '0 0 40px rgba(0,212,255,0.7), 0 0 80px rgba(0,212,255,0.3)',
               position: 'relative', zIndex: 1,
               objectFit: 'cover',
-              imageRendering: 'high-quality',
+              objectPosition: 'center',
+              display: 'block',
             }} />
           </div>
         </div>

@@ -29,15 +29,13 @@ export default function Navbar() {
     }}>
       {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
-        <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
+        <img src="/logo.png" alt="AI Yuga" style={{
           width: 44, height: 44, borderRadius: '50%',
           border: '2px solid var(--accent)',
           boxShadow: '0 0 12px rgba(0,212,255,0.5)',
           objectFit: 'cover',
           objectPosition: 'center',
-          imageRendering: 'auto',
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)',
+          display: 'block',
         }} />
         <div>
           <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '0.1em', lineHeight: 1 }}>
