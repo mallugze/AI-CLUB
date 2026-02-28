@@ -5,9 +5,9 @@ import Navbar from '../components/Navbar';
 export default function LeaderboardPage() {
   const [overall, setOverall] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [revealed, setRevealed] = useState([]);
+  const [revealedCount, setRevealedCount] = useState(0);
   const [rocketLaunch, setRocketLaunch] = useState(false);
-  const [firstPlaceLanded, setFirstPlaceLanded] = useState(false);
+  const [firstLanded, setFirstLanded] = useState(false);
   const timerRef = useRef([]);
 
   useEffect(() => {
@@ -17,23 +17,47 @@ export default function LeaderboardPage() {
     }).catch(() => setLoading(false));
   }, []);
 
+  // overall is already sorted highest first from backend
+  // We want to show: last place first, then 2nd last... then 2nd place
+  // Then 1st rockets up
   useEffect(() => {
     if (!loading && overall.length > 0) {
-      const sorted = [...overall].sort((a, b) => a.score - b.score); // lowest first
-      sorted.forEach((_, i) => {
+      const nonFirst = overall.slice(1); // 2nd place onwards (index 1,2,3...)
+      // Reveal from last place going up to 2nd place
+      nonFirst.forEach((_, i) => {
         const t = setTimeout(() => {
-          setRevealed(prev => [...prev, i]);
-        }, i * 600 + 300);
+          setRevealedCount(prev => prev + 1);
+        }, (nonFirst.length - i) * 600); // reverse order timing: last revealed first
         timerRef.current.push(t);
       });
-      // Rocket launch for 1st place (last to appear)
-      const rocketDelay = sorted.length * 600 + 400;
-      const t2 = setTimeout(() => setRocketLaunch(true), rocketDelay);
-      const t3 = setTimeout(() => setFirstPlaceLanded(true), rocketDelay + 1800);
+
+      // After all non-first revealed, launch rockets
+      const totalDelay = nonFirst.length * 600 + 500;
+      const t2 = setTimeout(() => setRocketLaunch(true), totalDelay);
+      const t3 = setTimeout(() => setFirstLanded(true), totalDelay + 2000);
       timerRef.current.push(t2, t3);
     }
     return () => timerRef.current.forEach(clearTimeout);
   }, [loading, overall]);
+
+  // overall[0] = 1st place (highest score)
+  // overall[1] = 2nd place
+  // overall[n] = last place
+  // We want to display in order: 2nd, 3rd, 4th... (visually top to bottom)
+  // But reveal them from last→2nd
+  // So display array = overall.slice(1) in normal order (2nd, 3rd, 4th...)
+  // But reveal from bottom: last item revealed first, then second-last, etc.
+
+  const nonFirstTeams = overall.slice(1); // [2nd, 3rd, 4th, ...]
+  const firstPlace = overall[0];
+
+  // Which teams to show: we reveal from last index going up
+  // revealedCount=1 means last team shown, revealedCount=2 means last two shown, etc.
+  const visibleNonFirst = nonFirstTeams.filter((_, i) => {
+    // i=0 is 2nd place, i=last is last place
+    // Show from last: index >= nonFirstTeams.length - revealedCount
+    return i >= nonFirstTeams.length - revealedCount;
+  });
 
   const byEvent = overall.reduce((acc, item) => {
     const key = item.event_title;
@@ -42,62 +66,52 @@ export default function LeaderboardPage() {
     return acc;
   }, {});
 
-  // Sort lowest to highest for animation reveal
-  const sortedOverall = [...overall].sort((a, b) => a.score - b.score);
-
   return (
     <>
       <Navbar />
       <div className="scanline" />
       <style>{`
         @keyframes stackIn {
-          0% { opacity: 0; transform: translateX(-60px) scale(0.85); }
-          60% { transform: translateX(8px) scale(1.02); }
+          0% { opacity: 0; transform: translateX(-80px) scale(0.88); }
+          65% { transform: translateX(6px) scale(1.02); }
           100% { opacity: 1; transform: translateX(0) scale(1); }
         }
-        @keyframes rocketLeft {
-          0% { transform: translate(-200px, 100px) rotate(-30deg); opacity: 0; }
-          30% { opacity: 1; }
-          70% { transform: translate(-20px, -10px) rotate(-5deg); opacity: 1; }
+        @keyframes rocketFromLeft {
+          0% { transform: translate(-300px, 120px) rotate(-25deg); opacity: 0; }
+          20% { opacity: 1; }
+          75% { transform: translate(-15px, -5px) rotate(-3deg); }
           100% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
         }
-        @keyframes rocketRight {
-          0% { transform: translate(200px, 100px) rotate(30deg); opacity: 0; }
-          30% { opacity: 1; }
-          70% { transform: translate(20px, -10px) rotate(5deg); opacity: 1; }
-          100% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
+        @keyframes rocketFromRight {
+          0% { transform: translate(300px, 120px) rotate(25deg) scaleX(-1); opacity: 0; }
+          20% { opacity: 1; }
+          75% { transform: translate(15px, -5px) rotate(3deg) scaleX(-1); }
+          100% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); opacity: 1; }
         }
-        @keyframes liftUp {
-          0% { transform: translateY(200px); opacity: 0; }
-          40% { opacity: 1; }
-          70% { transform: translateY(-20px); }
-          85% { transform: translateY(5px); }
-          100% { transform: translateY(0); opacity: 1; }
+        @keyframes riseFromBottom {
+          0% { opacity: 0; transform: translateY(300px) scale(0.9); }
+          50% { opacity: 1; transform: translateY(-25px) scale(1.03); }
+          70% { transform: translateY(8px) scale(0.99); }
+          85% { transform: translateY(-5px) scale(1.01); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes landOnTop {
-          0% { transform: translateY(0); }
-          30% { transform: translateY(-8px); }
-          60% { transform: translateY(3px); }
-          100% { transform: translateY(0); }
-        }
-        @keyframes goldPulse {
-          0%,100% { box-shadow: 0 0 20px rgba(251,191,36,0.4), 0 0 40px rgba(251,191,36,0.2); }
-          50% { box-shadow: 0 0 40px rgba(251,191,36,0.8), 0 0 80px rgba(251,191,36,0.4); }
+        @keyframes goldShine {
+          0%,100% { box-shadow: 0 0 20px rgba(251,191,36,0.3), 0 0 40px rgba(251,191,36,0.1); }
+          50% { box-shadow: 0 0 50px rgba(251,191,36,0.8), 0 0 100px rgba(251,191,36,0.3); }
         }
         @keyframes exhaustFlame {
-          0%,100% { transform: scaleY(1) scaleX(1); opacity: 0.9; }
-          50% { transform: scaleY(1.4) scaleX(0.7); opacity: 0.6; }
+          0%,100% { transform: scaleY(1); opacity: 0.9; }
+          50% { transform: scaleY(1.5) scaleX(0.7); opacity: 0.5; }
         }
-        @keyframes sparkle {
-          0% { transform: translate(0,0) scale(1); opacity: 1; }
-          100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+        @keyframes dotBlink {
+          0%,100% { opacity: 0.2; } 50% { opacity: 1; }
         }
-        .stack-item { animation: stackIn 0.7s cubic-bezier(0.34,1.3,0.64,1) both; }
-        .rocket-left { animation: rocketLeft 1.8s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-        .rocket-right { animation: rocketRight 1.8s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-        .lift-up { animation: liftUp 1.8s cubic-bezier(0.34,1.1,0.64,1) both; }
-        .land-on-top { animation: landOnTop 0.6s ease both; }
-        .gold-pulse { animation: goldPulse 2s ease-in-out infinite; }
+        .stack-in { animation: stackIn 0.65s cubic-bezier(0.34,1.3,0.64,1) both; }
+        .rocket-left { animation: rocketFromLeft 2s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+        .rocket-right { animation: rocketFromRight 2s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+        .rise-up { animation: riseFromBottom 2s cubic-bezier(0.34,1.1,0.64,1) both; }
+        .gold-shine { animation: goldShine 2.5s ease-in-out infinite; }
+        .flame { animation: exhaustFlame 0.15s ease-in-out infinite; }
       `}</style>
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem' }}>
@@ -106,20 +120,79 @@ export default function LeaderboardPage() {
           <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Overall performance across all events</p>
         </div>
 
-        {/* Overall animated leaderboard */}
         {overall.length > 0 && (
-          <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(0,212,255,0.05))', overflow: 'visible', animation: 'fadeInUp 0.5s ease 0.2s both' }}>
+          <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,212,255,0.04))', overflow: 'visible', padding: '1.5rem' }}>
             <h2 style={{ fontFamily: 'Orbitron', fontSize: '1rem', color: 'var(--accent2)', marginBottom: '1.5rem' }}>⚡ Rankings</h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'relative' }}>
-              {/* Render lowest to 2nd place first (stacking animation) */}
-              {sortedOverall.slice(0, -1).map((team, i) => (
-                revealed.includes(i) ? (
-                  <div key={i} className="stack-item" style={{ animationDelay: '0s', display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', background: 'var(--bg)', borderRadius: 10, border: '1px solid var(--border)' }}>
-                    <span style={{ fontFamily: 'Orbitron', fontWeight: 900, minWidth: 32, color: i === sortedOverall.length - 2 ? '#94a3b8' : 'var(--text-muted)' }}>
-                      #{sortedOverall.length - i}
+
+              {/* 1ST PLACE — appears last, rises from bottom with rockets */}
+              {rocketLaunch && firstPlace && (
+                <div style={{ position: 'relative', marginBottom: '0.4rem' }}>
+                  {/* Left Rocket */}
+                  <div className="rocket-left" style={{
+                    position: 'absolute', left: -50, top: '50%',
+                    transform: 'translateY(-50%)', zIndex: 20,
+                    fontSize: '1.8rem', pointerEvents: 'none',
+                    display: 'flex', alignItems: 'center',
+                  }}>
+                    🚀
+                    <span className="flame" style={{ fontSize: '1rem', marginLeft: -4 }}>🔥</span>
+                  </div>
+                  {/* Right Rocket */}
+                  <div className="rocket-right" style={{
+                    position: 'absolute', right: -50, top: '50%',
+                    transform: 'translateY(-50%)', zIndex: 20,
+                    fontSize: '1.8rem', pointerEvents: 'none',
+                    display: 'flex', alignItems: 'center',
+                  }}>
+                    <span className="flame" style={{ fontSize: '1rem', marginRight: -4 }}>🔥</span>
+                    🚀
+                  </div>
+
+                  {/* First place card */}
+                  <div className={`rise-up ${firstLanded ? 'gold-shine' : ''}`} style={{
+                    display: 'flex', alignItems: 'center', gap: '1rem',
+                    padding: '1rem 1.25rem',
+                    background: 'linear-gradient(135deg, rgba(251,191,36,0.18), rgba(251,191,36,0.06))',
+                    borderRadius: 14, border: '2px solid rgba(251,191,36,0.6)',
+                    position: 'relative', overflow: 'hidden',
+                  }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.07), transparent)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
+                    <span style={{ fontSize: '1.75rem' }}>🥇</span>
+                    <svg width="34" height="34" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                      <rect x="5" y="3" width="14" height="11" rx="2" fill="#0a1628" stroke="#fbbf24" strokeWidth="1.5"/>
+                      <circle cx="9" cy="8" r="2" fill="#fbbf24"/>
+                      <circle cx="15" cy="8" r="2" fill="#fbbf24"/>
+                      <circle cx="9" cy="8" r="0.8" fill="#000"/>
+                      <circle cx="15" cy="8" r="0.8" fill="#000"/>
+                      <rect x="8" y="14" width="8" height="7" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1.5"/>
+                      <rect x="3" y="15" width="4" height="5" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1"/>
+                      <rect x="17" y="15" width="4" height="5" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1"/>
+                      <line x1="12" y1="3" x2="12" y2="0" stroke="#fbbf24" strokeWidth="1.5"/>
+                      <polygon points="12,0 10,3 14,3" fill="#fbbf24"/>
+                    </svg>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: '#fbbf24' }}>{firstPlace.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>{firstPlace.event_title} • {firstPlace.members}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontFamily: 'Orbitron', fontSize: '2rem', color: '#fbbf24', fontWeight: 900, lineHeight: 1 }}>{firstPlace.score}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>/ 10</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 2ND, 3RD... revealed from bottom upwards */}
+              {visibleNonFirst.map((team, i) => {
+                const actualRank = overall.indexOf(team) + 1; // 2, 3, 4...
+                const rankIcon = actualRank === 2 ? '🥈' : actualRank === 3 ? '🥉' : `#${actualRank}`;
+                return (
+                  <div key={team.name + i} className="stack-in" style={{ animationDelay: '0s', display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem', background: 'var(--bg)', borderRadius: 10, border: `1px solid ${actualRank === 2 ? 'rgba(148,163,184,0.4)' : 'var(--border)'}` }}>
+                    <span style={{ fontFamily: 'Orbitron', fontWeight: 900, minWidth: 32, fontSize: actualRank <= 3 ? '1.2rem' : '0.9rem' }}>
+                      {rankIcon}
                     </span>
-                    {/* Mini robot icon */}
                     <svg width="24" height="24" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
                       <rect x="6" y="4" width="12" height="10" rx="2" fill="#0a1628" stroke="#7c3aed" strokeWidth="1.5"/>
                       <circle cx="9" cy="9" r="1.5" fill="#7c3aed"/>
@@ -130,81 +203,17 @@ export default function LeaderboardPage() {
                     </svg>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{team.event_title}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{team.event_title} • {team.members}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ width: 60, height: 5, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${(team.score/10)*100}%`, background: 'linear-gradient(90deg, var(--accent2), var(--accent))', borderRadius: 3 }} />
+                      <div style={{ width: 70, height: 5, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${(team.score / 10) * 100}%`, background: 'linear-gradient(90deg, var(--accent2), var(--accent))', borderRadius: 3 }} />
                       </div>
-                      <span style={{ fontFamily: 'Orbitron', color: 'var(--accent)', fontWeight: 700, minWidth: 36 }}>{team.score}</span>
+                      <span style={{ fontFamily: 'Orbitron', color: 'var(--accent)', fontWeight: 700, minWidth: 36, textAlign: 'right' }}>{team.score}</span>
                     </div>
                   </div>
-                ) : null
-              ))}
-
-              {/* FIRST PLACE — rocket animation */}
-              {sortedOverall.length > 0 && (() => {
-                const first = sortedOverall[sortedOverall.length - 1];
-                return (
-                  <div style={{ position: 'relative', marginTop: '0.5rem' }}>
-                    {/* Rockets */}
-                    {rocketLaunch && !firstPlaceLanded && (
-                      <>
-                        {/* Left rocket */}
-                        <div className="rocket-left" style={{ position: 'absolute', left: -60, top: '50%', transform: 'translateY(-50%)', zIndex: 10, fontSize: '2rem' }}>
-                          🚀
-                          <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%) rotate(90deg)', animation: 'exhaustFlame 0.2s ease-in-out infinite' }}>
-                            🔥
-                          </div>
-                        </div>
-                        {/* Right rocket */}
-                        <div className="rocket-right" style={{ position: 'absolute', right: -60, top: '50%', transform: 'translateY(-50%) scaleX(-1)', zIndex: 10, fontSize: '2rem' }}>
-                          🚀
-                          <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%) rotate(90deg)', animation: 'exhaustFlame 0.2s ease-in-out infinite 0.1s' }}>
-                            🔥
-                          </div>
-                        </div>
-                      </>
-                    )}
-
-                    {/* First place card */}
-                    {revealed.includes(sortedOverall.length - 2) && (
-                      <div className={rocketLaunch ? (firstPlaceLanded ? 'land-on-top gold-pulse' : 'lift-up') : ''} style={{
-                        display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem',
-                        background: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.05))',
-                        borderRadius: 12, border: '2px solid rgba(251,191,36,0.5)',
-                        position: 'relative', overflow: 'hidden',
-                      }}>
-                        {/* Gold shimmer */}
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.1) 50%, transparent 100%)', animation: 'scanline 3s linear infinite' }} />
-
-                        <span style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1.5rem' }}>🥇</span>
-                        {/* Champion robot */}
-                        <svg width="32" height="32" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                          <rect x="5" y="3" width="14" height="11" rx="2" fill="#0a1628" stroke="#fbbf24" strokeWidth="1.5"/>
-                          <circle cx="9" cy="8" r="2" fill="#fbbf24"/>
-                          <circle cx="15" cy="8" r="2" fill="#fbbf24"/>
-                          <circle cx="9" cy="8" r="0.8" fill="#000"/>
-                          <circle cx="15" cy="8" r="0.8" fill="#000"/>
-                          <rect x="8" y="14" width="8" height="7" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1.5"/>
-                          <rect x="3" y="15" width="4" height="5" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1"/>
-                          <rect x="17" y="15" width="4" height="5" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1"/>
-                          <line x1="12" y1="3" x2="12" y2="0" stroke="#fbbf24" strokeWidth="1.5"/>
-                          <polygon points="12,0 10,3 14,3" fill="#fbbf24"/>
-                        </svg>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: '#fbbf24' }}>{first.name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{first.event_title} • {first.members}</div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontFamily: 'Orbitron', fontSize: '1.75rem', color: '#fbbf24', fontWeight: 900 }}>{first.score}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>/ 10</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 );
-              })()}
+              })}
             </div>
           </div>
         )}
@@ -216,7 +225,7 @@ export default function LeaderboardPage() {
           <div className="empty-state">
             <div className="empty-icon">🏆</div>
             <h3>No scores yet</h3>
-            <p>Scores will appear here once committee assigns them</p>
+            <p>Scores will appear once the committee assigns them</p>
           </div>
         ) : (
           Object.values(byEvent).map((group, gi) => (
@@ -232,7 +241,7 @@ export default function LeaderboardPage() {
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 0.75rem', background: 'var(--bg)', borderRadius: 8 }}>
                     <span style={{ fontFamily: 'Orbitron', fontWeight: 700, minWidth: 28, fontSize: '0.9rem' }}
                       className={i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : ''}>
-                      #{i + 1}
+                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                     </span>
                     <div style={{ flex: 1 }}>
                       <span style={{ fontWeight: 600 }}>{team.name}</span>
