@@ -143,7 +143,7 @@ export default function EventsPage() {
                 <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" begin="0.5s" repeatCount="indefinite" />
               </circle>
             </svg>
-            <img src="/logo.png" alt="AI Yuga" style={{
+            <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
               width: 150, height: 150,
               filter: 'drop-shadow(0 0 30px rgba(0,212,255,0.8))',
               position: 'relative', zIndex: 1,

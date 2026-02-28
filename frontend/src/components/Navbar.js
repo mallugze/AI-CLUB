@@ -29,7 +29,7 @@ export default function Navbar() {
     }}>
       {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
-        <img src="/logo.png" alt="AI Yuga" style={{
+        <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
           width: 48, height: 48,
           borderRadius: '50%',
           boxShadow: '0 0 12px rgba(0,212,255,0.5)',

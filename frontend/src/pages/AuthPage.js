@@ -40,7 +40,7 @@ export default function AuthPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1rem' }}>
-            <img src="/logo.png" alt="AI Yuga" style={{
+            <img src="D:\college\ai-club\frontend\public\logo.png" alt="AI Yuga" style={{
               width: 130, height: 130,
               animation: 'pulse-glow 3s ease-in-out infinite',
               objectFit: 'contain',
