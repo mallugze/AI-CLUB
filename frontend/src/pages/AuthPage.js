@@ -42,11 +42,13 @@ export default function AuthPage() {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1rem' }}>
             <img src={logoBase64} alt="AI Yuga" style={{
-              width: 130, height: 130,
-              animation: 'pulse-glow 3s ease-in-out infinite',
-              objectFit: 'contain',
+              width: 140, height: 140,
+              borderRadius: '50%',
+              background: '#000',
+              objectFit: 'cover',
               display: 'block',
-              filter: 'drop-shadow(0 0 20px rgba(0,212,255,0.6))',
+              animation: 'pulse-glow 3s ease-in-out infinite',
+              boxShadow: '0 0 30px rgba(0,212,255,0.6), 0 0 60px rgba(0,212,255,0.2)',
             }} />
           </div>
           <h1 style={{ fontFamily: 'Orbitron', fontSize: '1.75rem', color: 'var(--accent)', letterSpacing: '0.15em' }}>AI YUGA</h1>

@@ -31,12 +31,12 @@ export default function Navbar() {
       {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
         <img src={logoBase64} alt="AI Yuga" style={{
-          width: 48, height: 48,
+          width: 46, height: 46,
           borderRadius: '50%',
-          boxShadow: '0 0 12px rgba(0,212,255,0.5)',
-          objectFit: 'contain',
+          boxShadow: '0 0 14px rgba(0,212,255,0.6)',
+          objectFit: 'cover',
           display: 'block',
-          background: 'transparent',
+          background: '#000',
         }} />
         <div>
           <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '0.1em', lineHeight: 1 }}>
