@@ -25,18 +25,19 @@ export default function Navbar() {
       zIndex: 100,
       display: 'flex',
       alignItems: 'center',
-      height: '64px',
+      height: '70px',
       gap: '1.5rem',
     }}>
       {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
         <img src={logoBase64} alt="AI Yuga" style={{
-          width: 46, height: 46,
+          width: 52, height: 52,
           borderRadius: '50%',
           boxShadow: '0 0 14px rgba(0,212,255,0.6)',
           objectFit: 'cover',
+          objectPosition: 'center',
           display: 'block',
-          background: '#000',
+          flexShrink: 0,
         }} />
         <div>
           <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '0.1em', lineHeight: 1 }}>
