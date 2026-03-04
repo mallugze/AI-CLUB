@@ -7,7 +7,7 @@ import EventDetailPage from './pages/EventDetailPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import UsersPage from './pages/UsersPage';
 import ActivitiesPage from './pages/ActivitiesPage';
-import ProfilePage from './pages/Profilepage';
+import ProfilePage from './pages/ProfilePage';
 import VerifyPage from './pages/VerifyPage';
 import './index.css';
 
