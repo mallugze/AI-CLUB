@@ -165,7 +165,16 @@ app.put('/api/users/:id/role', auth, superAdminOnly, async (req, res) => {
   res.json({ success: true });
 });
 
-// EVENTS
+// Only super admin can delete users
+app.delete('/api/users/:id', auth, superAdminOnly, async (req, res) => {
+  const target = await query('SELECT * FROM users WHERE id = $1', [req.params.id]);
+  if (!target.rows[0]) return res.status(404).json({ error: 'User not found' });
+  if (target.rows[0].email === SUPER_ADMIN_EMAIL) return res.status(400).json({ error: 'Cannot delete super admin' });
+  await query('DELETE FROM bookings WHERE user_id = $1', [req.params.id]);
+  await query('DELETE FROM team_members WHERE user_id = $1', [req.params.id]);
+  await query('DELETE FROM users WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+});
 app.get('/api/events', auth, async (req, res) => {
   const result = await query(`
     SELECT e.*, u.name as creator_name,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import API, { usersAPI } from '../api';
+import { usersAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -25,19 +25,36 @@ export default function UsersPage() {
     try {
       const res = await usersAPI.getAll();
       setUsers(res.data);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showMsg = (msg) => {
+    setMessage(msg);
+    setTimeout(() => setMessage(''), 3000);
   };
 
   const changeRole = async (userId, newRole) => {
     try {
       await usersAPI.updateRole(userId, newRole);
-      setMessage('Role updated successfully!');
+      showMsg('Role updated successfully!');
       fetchUsers();
-      setTimeout(() => setMessage(''), 3000);
     } catch (e) {
-      setMessage('Error updating role');
-      setTimeout(() => setMessage(''), 3000);
+      showMsg('Error updating role');
+    }
+  };
+
+  const deleteUser = async (u) => {
+    if (!window.confirm(`Delete "${u.name}"? This cannot be undone.`)) return;
+    try {
+      await usersAPI.deleteUser(u.id);
+      showMsg('User deleted successfully!');
+      fetchUsers();
+    } catch (e) {
+      showMsg('Error deleting user');
     }
   };
 
@@ -46,31 +63,40 @@ export default function UsersPage() {
       <Navbar />
       <div className="scanline" />
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem' }}>
+
         <div className="fade-in" style={{ marginBottom: '2rem' }}>
           <h1 style={{ fontSize: '1.75rem', color: 'var(--accent)', letterSpacing: '0.05em' }}>⚙ Manage Users</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Promote members to admin or demote admins to member</p>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Promote, demote or remove users</p>
         </div>
 
-        {message && <div className="alert alert-success" style={{ marginBottom: '1rem' }}>{message}</div>}
+        {message && (
+          <div className="alert alert-success fade-in" style={{ marginBottom: '1rem' }}>{message}</div>
+        )}
 
         {loading ? (
           <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '4rem' }}>Loading users...</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {users.map((u, i) => (
-              <div key={u.id} className="card fade-in" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.5rem', animationDelay: `${i * 0.05}s` }}>
+              <div key={u.id} className="card fade-in" style={{
+                display: 'flex', alignItems: 'center', gap: '1rem',
+                padding: '1rem 1.5rem', animationDelay: `${i * 0.05}s`
+              }}>
+                {/* Avatar */}
                 <div style={{
-                  width: 40, height: 40, borderRadius: '50%',
+                  width: 42, height: 42, borderRadius: '50%', flexShrink: 0,
                   background: u.email === SUPER_ADMIN_EMAIL
                     ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
                     : u.role === 'admin'
                     ? 'linear-gradient(135deg, var(--accent2), #5b21b6)'
                     : 'linear-gradient(135deg, var(--accent), #0099bb)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1rem', fontWeight: 700, color: '#000', flexShrink: 0,
+                  fontSize: '1.1rem', fontWeight: 700, color: '#000',
                 }}>
                   {u.name.charAt(0).toUpperCase()}
                 </div>
+
+                {/* Info */}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {u.name}
@@ -82,16 +108,29 @@ export default function UsersPage() {
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{u.email}</div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className={`badge badge-${u.role === 'admin' ? 'purple' : 'cyan'}`}>{u.role}</span>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className={`badge badge-${u.role === 'admin' ? 'purple' : 'cyan'}`}>
+                    {u.role}
+                  </span>
                   {u.email !== SUPER_ADMIN_EMAIL && (
-                    <button
-                      className={`btn ${u.role === 'admin' ? 'btn-danger' : 'btn-purple'}`}
-                      style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
-                      onClick={() => changeRole(u.id, u.role === 'admin' ? 'member' : 'admin')}
-                    >
-                      {u.role === 'admin' ? 'Demote' : 'Make Admin'}
-                    </button>
+                    <>
+                      <button
+                        className={`btn ${u.role === 'admin' ? 'btn-secondary' : 'btn-purple'}`}
+                        style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
+                        onClick={() => changeRole(u.id, u.role === 'admin' ? 'member' : 'admin')}
+                      >
+                        {u.role === 'admin' ? 'Demote' : 'Make Admin'}
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
+                        onClick={() => deleteUser(u)}
+                      >
+                        🗑 Delete
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

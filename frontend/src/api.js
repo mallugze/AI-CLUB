@@ -39,6 +39,7 @@ export const leaderboardAPI = {
 export const usersAPI = {
   getAll: () => API.get('/users'),
   updateRole: (id, role) => API.put(`/users/${id}/role`, { role }),
+  deleteUser: (id) => API.delete(`/users/${id}`),
 };
 
 export const activitiesAPI = {
