@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
+const QRCode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -65,6 +66,19 @@ const initDB = async () => {
       note TEXT,
       assigned_by INTEGER,
       assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS certificates (
+      id SERIAL PRIMARY KEY,
+      certificate_id TEXT UNIQUE NOT NULL,
+      user_id INTEGER NOT NULL,
+      user_name TEXT NOT NULL,
+      team_id INTEGER,
+      team_name TEXT NOT NULL,
+      event_id INTEGER,
+      event_title TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      score REAL,
+      issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS announcements (
       id SERIAL PRIMARY KEY,
@@ -425,6 +439,59 @@ app.get('/api/profile/:userId', auth, async (req, res) => {
   const avgScore = teams.rows.length > 0 ? (totalScore / teams.rows.filter(t => t.score).length) || 0 : 0;
 
   res.json({ user: user.rows[0], teams: teams.rows, totalScore, avgScore: Math.round(avgScore * 10) / 10 });
+});
+
+// ─── CERTIFICATES ─────────────────────────────────────────────────────────────
+const generateCertId = async () => {
+  const year = new Date().getFullYear();
+  const count = await query('SELECT COUNT(*) FROM certificates WHERE certificate_id LIKE $1', [`AIY-${year}-%`]);
+  const num = String(parseInt(count.rows[0].count) + 1).padStart(4, '0');
+  return `AIY-${year}-${num}`;
+};
+
+// Issue a certificate
+app.post('/api/certificates/issue', auth, async (req, res) => {
+  const { teamId, eventId } = req.body;
+  if (!teamId || !eventId) return res.status(400).json({ error: 'teamId and eventId required' });
+
+  // Check if already issued for this user+event
+  const existing = await query(
+    'SELECT * FROM certificates WHERE user_id = $1 AND event_id = $2',
+    [req.user.id, eventId]
+  );
+  if (existing.rows[0]) return res.json({ certificate_id: existing.rows[0].certificate_id, existing: true });
+
+  const team = await query('SELECT * FROM teams WHERE id = $1', [teamId]);
+  const event = await query('SELECT * FROM events WHERE id = $1', [eventId]);
+  const score = await query('SELECT score FROM scores WHERE team_id = $1 AND event_id = $2', [teamId, eventId]);
+
+  if (!team.rows[0] || !event.rows[0]) return res.status(404).json({ error: 'Team or event not found' });
+
+  const certId = await generateCertId();
+  await query(
+    `INSERT INTO certificates (certificate_id, user_id, user_name, team_id, team_name, event_id, event_title, event_date, score)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [certId, req.user.id, req.user.name, teamId, team.rows[0].name, eventId, event.rows[0].title, event.rows[0].date, score.rows[0]?.score || null]
+  );
+
+  res.json({ certificate_id: certId });
+});
+
+// Verify a certificate (public - no auth needed)
+app.get('/api/certificates/verify/:certId', async (req, res) => {
+  const result = await query('SELECT * FROM certificates WHERE certificate_id = $1', [req.params.certId]);
+  if (!result.rows[0]) return res.status(404).json({ valid: false, error: 'Certificate not found' });
+  res.json({ valid: true, certificate: result.rows[0] });
+});
+
+// Get QR code for a certificate
+app.get('/api/certificates/qr/:certId', auth, async (req, res) => {
+  const verifyUrl = `https://ai-club-sigma.vercel.app/verify/${req.params.certId}`;
+  const qr = await QRCode.toDataURL(verifyUrl, {
+    width: 200, margin: 1,
+    color: { dark: '#1a1a2e', light: '#ffffff' }
+  });
+  res.json({ qr });
 });
 
 app.listen(PORT, () => console.log(`AI Club server running on port ${PORT}`));

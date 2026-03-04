@@ -7,7 +7,8 @@ import EventDetailPage from './pages/EventDetailPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import UsersPage from './pages/UsersPage';
 import ActivitiesPage from './pages/ActivitiesPage';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePage from './pages/Profilepage';
+import VerifyPage from './pages/VerifyPage';
 import './index.css';
 
 function PrivateRoute({ children }) {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/activities" element={<PrivateRoute><ActivitiesPage /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/profile/:userId" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+          <Route path="/verify/:certId" element={<VerifyPage />} />
           <Route path="/users" element={<PrivateRoute><UsersPage /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/events" />} />
         </Routes>
