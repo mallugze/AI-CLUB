@@ -40,6 +40,7 @@ const initDB = async () => {
       date TEXT NOT NULL,
       venue TEXT,
       status TEXT DEFAULT 'upcoming',
+      registration_deadline TEXT,
       created_by INTEGER,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -64,6 +65,14 @@ const initDB = async () => {
       note TEXT,
       assigned_by INTEGER,
       assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS announcements (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      type TEXT DEFAULT 'info',
+      created_by INTEGER,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS activities (
       id SERIAL PRIMARY KEY,
@@ -373,6 +382,49 @@ app.get('/api/activities/:id/bookings', auth, adminOnly, async (req, res) => {
     [req.params.id]
   );
   res.json(result.rows);
+});
+
+// ─── ANNOUNCEMENTS ────────────────────────────────────────────────────────────
+app.get('/api/announcements', auth, async (req, res) => {
+  const result = await query('SELECT a.*, u.name as author FROM announcements a LEFT JOIN users u ON u.id = a.created_by ORDER BY a.created_at DESC LIMIT 10');
+  res.json(result.rows);
+});
+
+app.post('/api/announcements', auth, superAdminOnly, async (req, res) => {
+  const { title, content, type } = req.body;
+  if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
+  const result = await query(
+    'INSERT INTO announcements (title, content, type, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
+    [title, content, type || 'info', req.user.id]
+  );
+  res.json(result.rows[0]);
+});
+
+app.delete('/api/announcements/:id', auth, superAdminOnly, async (req, res) => {
+  await query('DELETE FROM announcements WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+});
+
+// ─── MEMBER PROFILE ───────────────────────────────────────────────────────────
+app.get('/api/profile/:userId', auth, async (req, res) => {
+  const userId = req.params.userId;
+  const user = await query('SELECT id, name, email, role, created_at FROM users WHERE id = $1', [userId]);
+  if (!user.rows[0]) return res.status(404).json({ error: 'User not found' });
+
+  const teams = await query(`
+    SELECT t.id as team_id, t.name as team_name, e.title as event_title, e.date as event_date, s.score
+    FROM team_members tm
+    JOIN teams t ON t.id = tm.team_id
+    JOIN events e ON e.id = t.event_id
+    LEFT JOIN scores s ON s.team_id = t.id AND s.event_id = t.event_id
+    WHERE tm.user_id = $1
+    ORDER BY e.date DESC
+  `, [userId]);
+
+  const totalScore = teams.rows.reduce((sum, t) => sum + (parseFloat(t.score) || 0), 0);
+  const avgScore = teams.rows.length > 0 ? (totalScore / teams.rows.filter(t => t.score).length) || 0 : 0;
+
+  res.json({ user: user.rows[0], teams: teams.rows, totalScore, avgScore: Math.round(avgScore * 10) / 10 });
 });
 
 app.listen(PORT, () => console.log(`AI Club server running on port ${PORT}`));

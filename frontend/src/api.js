@@ -52,4 +52,14 @@ export const activitiesAPI = {
   getBookings: (id) => API.get(`/activities/${id}/bookings`),
 };
 
+export const announcementsAPI = {
+  getAll: () => API.get('/announcements'),
+  create: (data) => API.post('/announcements', data),
+  delete: (id) => API.delete(`/announcements/${id}`),
+};
+
+export const profileAPI = {
+  get: (userId) => API.get(`/profile/${userId}`),
+};
+
 export default API;

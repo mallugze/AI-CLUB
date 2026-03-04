@@ -57,6 +57,7 @@ export default function Navbar() {
         <NavLink to="/events" active={isActive('/events')}>Events</NavLink>
         <NavLink to="/activities" active={isActive('/activities')}>🎫 Activities</NavLink>
         <NavLink to="/leaderboard" active={isActive('/leaderboard')}>Leaderboard</NavLink>
+        <NavLink to="/profile" active={isActive('/profile')}>👤 Profile</NavLink>
         {isSuperAdmin && <NavLink to="/users" active={isActive('/users')}>👑 Users</NavLink>}
       </div>
 
