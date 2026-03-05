@@ -63,7 +63,7 @@ export const profileAPI = {
 };
 
 export const certificatesAPI = {
-  issue: (teamId, eventId) => API.post('/certificates/issue', { teamId, eventId }),
+  issue: (teamId, eventId, userId, userName) => API.post('/certificates/issue', { teamId, eventId, userId, userName }),
   verify: (certId) => axios.get(`https://ai-club-backend-8xdp.onrender.com/api/certificates/verify/${certId}`),
   getQR: (certId) => API.get(`/certificates/qr/${certId}`),
 };

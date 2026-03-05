@@ -28,7 +28,7 @@ export default function ProfilePage() {
     setGenerating(team.team_id);
     try {
       // 1. Issue / get certificate ID from backend
-      const issueRes = await certificatesAPI.issue(team.team_id, team.event_id);
+      const issueRes = await certificatesAPI.issue(team.team_id, team.event_id, profile.user.id, profile.user.name);
       const certId = issueRes.data.certificate_id;
 
       // 2. Get QR code from backend
@@ -38,8 +38,9 @@ export default function ProfilePage() {
       // 3. Draw certificate on canvas
       await drawCertificate({ team, certId, qrDataUrl });
     } catch (e) {
-      showMsg('❌ Error generating certificate. Try again.');
-      console.error(e);
+      const errMsg = e.response?.data?.error || e.message || 'Unknown error';
+      showMsg(`❌ Error: ${errMsg}`);
+      console.error('Certificate error:', e.response?.data || e);
     }
     setGenerating(null);
   };

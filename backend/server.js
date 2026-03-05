@@ -459,30 +459,42 @@ const generateCertId = async () => {
 
 // Issue a certificate
 app.post('/api/certificates/issue', auth, async (req, res) => {
-  const { teamId, eventId } = req.body;
-  if (!teamId || !eventId) return res.status(400).json({ error: 'teamId and eventId required' });
+  try {
+    const { teamId, eventId, userId, userName } = req.body;
+    if (!teamId || !eventId) return res.status(400).json({ error: 'teamId and eventId required' });
 
-  // Check if already issued for this user+event
-  const existing = await query(
-    'SELECT * FROM certificates WHERE user_id = $1 AND event_id = $2',
-    [req.user.id, eventId]
-  );
-  if (existing.rows[0]) return res.json({ certificate_id: existing.rows[0].certificate_id, existing: true });
+    const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
+    const isSuperAdmin = req.user.email === SUPER_ADMIN_EMAIL;
 
-  const team = await query('SELECT * FROM teams WHERE id = $1', [teamId]);
-  const event = await query('SELECT * FROM events WHERE id = $1', [eventId]);
-  const score = await query('SELECT score FROM scores WHERE team_id = $1 AND event_id = $2', [teamId, eventId]);
+    // Super admin can issue for any user, others only for themselves
+    const targetUserId = (isSuperAdmin && userId) ? userId : req.user.id;
+    const targetUserName = (isSuperAdmin && userName) ? userName : req.user.name;
 
-  if (!team.rows[0] || !event.rows[0]) return res.status(404).json({ error: 'Team or event not found' });
+    // Check if already issued
+    const existing = await query(
+      'SELECT * FROM certificates WHERE user_id = $1 AND event_id = $2',
+      [targetUserId, eventId]
+    );
+    if (existing.rows[0]) return res.json({ certificate_id: existing.rows[0].certificate_id, existing: true });
 
-  const certId = await generateCertId();
-  await query(
-    `INSERT INTO certificates (certificate_id, user_id, user_name, team_id, team_name, event_id, event_title, event_date, score)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-    [certId, req.user.id, req.user.name, teamId, team.rows[0].name, eventId, event.rows[0].title, event.rows[0].date, score.rows[0]?.score || null]
-  );
+    const team = await query('SELECT * FROM teams WHERE id = $1', [teamId]);
+    const event = await query('SELECT * FROM events WHERE id = $1', [eventId]);
+    const score = await query('SELECT score FROM scores WHERE team_id = $1 AND event_id = $2', [teamId, eventId]);
 
-  res.json({ certificate_id: certId });
+    if (!team.rows[0] || !event.rows[0]) return res.status(404).json({ error: 'Team or event not found' });
+
+    const certId = await generateCertId();
+    await query(
+      `INSERT INTO certificates (certificate_id, user_id, user_name, team_id, team_name, event_id, event_title, event_date, score)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [certId, targetUserId, targetUserName, teamId, team.rows[0].name, eventId, event.rows[0].title, event.rows[0].date, score.rows[0]?.score || null]
+    );
+
+    res.json({ certificate_id: certId });
+  } catch (err) {
+    console.error('Certificate issue error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Verify a certificate (public - no auth needed)
