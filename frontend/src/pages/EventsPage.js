@@ -79,23 +79,23 @@ export default function EventsPage() {
         <style>{`@keyframes robotBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}} @keyframes dotBlink{0%,100%{opacity:0.2}50%{opacity:1}} @keyframes wireFlow{0%{stroke-dashoffset:100}100%{stroke-dashoffset:0}}`}</style>
         <div style={{ animation: 'robotBob 1.5s ease-in-out infinite' }}>
           <svg width="110" height="130" viewBox="0 0 120 140">
-            <rect x="30" y="10" width="60" height="50" rx="8" fill="#0a1628" stroke="#00d4ff" strokeWidth="2"/>
-            <circle cx="47" cy="32" r="8" fill="#00d4ff" opacity="0.9"/>
+            <rect x="30" y="10" width="60" height="50" rx="8" fill="#ffffff" stroke="#0066cc" strokeWidth="2"/>
+            <circle cx="47" cy="32" r="8" fill="#0066cc" opacity="0.9"/>
             <circle cx="73" cy="32" r="8" fill="#7c3aed" opacity="0.9"/>
             <circle cx="47" cy="32" r="4" fill="#000"/><circle cx="73" cy="32" r="4" fill="#000"/>
-            <rect x="42" y="48" width="36" height="6" rx="3" fill="#00d4ff" opacity="0.6"/>
-            <line x1="60" y1="10" x2="60" y2="0" stroke="#00d4ff" strokeWidth="2"/>
-            <circle cx="60" cy="0" r="4" fill="#00d4ff" style={{animation:'dotBlink 1s infinite'}}/>
-            <rect x="25" y="65" width="70" height="55" rx="8" fill="#0a1628" stroke="#00d4ff" strokeWidth="2"/>
-            <rect x="40" y="78" width="40" height="28" rx="4" fill="#050f1f" stroke="#7c3aed" strokeWidth="1"/>
-            <circle cx="60" cy="92" r="8" fill="none" stroke="#00d4ff" strokeWidth="1.5" strokeDasharray="4 2"/>
-            <circle cx="60" cy="92" r="4" fill="#00d4ff" opacity="0.8"/>
-            <rect x="0" y="68" width="22" height="10" rx="5" fill="#0a1628" stroke="#00d4ff" strokeWidth="1.5"/>
-            <rect x="98" y="68" width="22" height="10" rx="5" fill="#0a1628" stroke="#00d4ff" strokeWidth="1.5"/>
-            <path d="M22 73 Q30 90 25 110" fill="none" stroke="#00d4ff" strokeWidth="2" strokeDasharray="5 3"/>
-            <path d="M98 73 Q90 90 95 110" fill="none" stroke="#7c3aed" strokeWidth="2" strokeDasharray="5 3"/>
-            <rect x="35" y="120" width="20" height="18" rx="4" fill="#0a1628" stroke="#00d4ff" strokeWidth="1.5"/>
-            <rect x="65" y="120" width="20" height="18" rx="4" fill="#0a1628" stroke="#00d4ff" strokeWidth="1.5"/>
+            <rect x="42" y="48" width="36" height="6" rx="3" fill="#0066cc" opacity="0.6"/>
+            <line x1="60" y1="10" x2="60" y2="0" stroke="#0066cc" strokeWidth="2"/>
+            <circle cx="60" cy="0" r="4" fill="#0066cc" style={{animation:'dotBlink 1s infinite'}}/>
+            <rect x="25" y="65" width="70" height="55" rx="8" fill="#ffffff" stroke="#0066cc" strokeWidth="2"/>
+            <rect x="40" y="78" width="40" height="28" rx="4" fill="#e8edf2" stroke="#6d28d9" strokeWidth="1"/>
+            <circle cx="60" cy="92" r="8" fill="none" stroke="#0066cc" strokeWidth="1.5" strokeDasharray="4 2"/>
+            <circle cx="60" cy="92" r="4" fill="#0066cc" opacity="0.8"/>
+            <rect x="0" y="68" width="22" height="10" rx="5" fill="#ffffff" stroke="#0066cc" strokeWidth="1.5"/>
+            <rect x="98" y="68" width="22" height="10" rx="5" fill="#ffffff" stroke="#0066cc" strokeWidth="1.5"/>
+            <path d="M22 73 Q30 90 25 110" fill="none" stroke="#0066cc" strokeWidth="2" strokeDasharray="5 3"/>
+            <path d="M98 73 Q90 90 95 110" fill="none" stroke="#6d28d9" strokeWidth="2" strokeDasharray="5 3"/>
+            <rect x="35" y="120" width="20" height="18" rx="4" fill="#ffffff" stroke="#0066cc" strokeWidth="1.5"/>
+            <rect x="65" y="120" width="20" height="18" rx="4" fill="#ffffff" stroke="#0066cc" strokeWidth="1.5"/>
           </svg>
         </div>
         <div style={{ marginTop: '1.5rem', fontFamily: 'Orbitron', color: 'var(--accent)', fontSize: '0.9rem', letterSpacing: '0.1em' }}>CONNECTING TO SERVER</div>
@@ -115,20 +115,20 @@ export default function EventsPage() {
         <svg style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0.12 }} viewBox="0 0 800 600">
           {[[100,100],[300,150],[500,100],[700,150],[200,300],[400,280],[600,300],[150,450],[350,480],[550,450]].map((pt, i, arr) =>
             arr.slice(i+1, i+3).map((pt2, j) => (
-              <line key={`${i}-${j}`} x1={pt[0]} y1={pt[1]} x2={pt2[0]} y2={pt2[1]} stroke="#00d4ff" strokeWidth="1" strokeDasharray="500" style={{animation:`neuralDraw 2s ease ${i*0.1}s both`}}/>
+              <line key={`${i}-${j}`} x1={pt[0]} y1={pt[1]} x2={pt2[0]} y2={pt2[1]} stroke="#0066cc" strokeWidth="1" strokeDasharray="500" style={{animation:`neuralDraw 2s ease ${i*0.1}s both`}}/>
             ))
           )}
           {[[100,100],[300,150],[500,100],[700,150],[200,300],[400,280],[600,300],[150,450],[350,480],[550,450]].map((pt, i) => (
-            <circle key={i} cx={pt[0]} cy={pt[1]} r="5" fill="#00d4ff" opacity="0.8" style={{animation:`dotBlink ${1+i*0.1}s ease-in-out infinite`}}/>
+            <circle key={i} cx={pt[0]} cy={pt[1]} r="5" fill="#0066cc" opacity="0.8" style={{animation:`dotBlink ${1+i*0.1}s ease-in-out infinite`}}/>
           ))}
         </svg>
         <div style={{ animation: 'logoAppear 0.8s cubic-bezier(0.34,1.56,0.64,1) both', position: 'relative', zIndex: 2 }}>
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <svg style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 0 }} width="220" height="220" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="50" fill="none" stroke="#00d4ff" strokeWidth="2" opacity="0.6"><animate attributeName="r" from="50" to="105" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>
-              <circle cx="100" cy="100" r="50" fill="none" stroke="#7c3aed" strokeWidth="2" opacity="0.6"><animate attributeName="r" from="50" to="105" dur="1.5s" begin="0.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" begin="0.5s" repeatCount="indefinite"/></circle>
+              <circle cx="100" cy="100" r="50" fill="none" stroke="#0066cc" strokeWidth="2" opacity="0.6"><animate attributeName="r" from="50" to="105" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>
+              <circle cx="100" cy="100" r="50" fill="none" stroke="#6d28d9" strokeWidth="2" opacity="0.6"><animate attributeName="r" from="50" to="105" dur="1.5s" begin="0.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" begin="0.5s" repeatCount="indefinite"/></circle>
             </svg>
-            <img src={logoBase64} alt="AI Yuga" style={{ width: 160, height: 160, borderRadius: '50%', objectFit: 'cover', position: 'relative', zIndex: 1, boxShadow: '0 0 40px rgba(0,212,255,0.7)' }} />
+            <img src={logoBase64} alt="AI Yuga" style={{ width: 160, height: 160, borderRadius: '50%', objectFit: 'cover', position: 'relative', zIndex: 1, boxShadow: '0 0 40px rgba(0,102,204,0.7)' }} />
           </div>
         </div>
         <div style={{ animation: 'fadeInUp 0.6s ease 0.8s both', textAlign: 'center', marginTop: '1.5rem', zIndex: 2 }}>
@@ -156,7 +156,7 @@ export default function EventsPage() {
                 padding: '0.875rem 1.25rem', marginBottom: '0.5rem',
                 background: 'var(--surface)', borderRadius: 10,
                 borderLeft: `3px solid ${ann.type === 'warning' ? 'var(--danger)' : ann.type === 'success' ? 'var(--accent3)' : 'var(--accent)'}`,
-                border: `1px solid ${ann.type === 'warning' ? 'rgba(239,68,68,0.2)' : ann.type === 'success' ? 'rgba(16,185,129,0.2)' : 'rgba(0,212,255,0.2)'}`,
+                border: `1px solid ${ann.type === 'warning' ? 'rgba(239,68,68,0.2)' : ann.type === 'success' ? 'rgba(16,185,129,0.2)' : 'rgba(0,102,204,0.2)'}`,
                 borderLeft: `3px solid ${ann.type === 'warning' ? 'var(--danger)' : ann.type === 'success' ? 'var(--accent3)' : 'var(--accent)'}`,
               }}>
                 <span style={{ fontSize: '1.1rem' }}>{annIcon[ann.type] || '📢'}</span>
@@ -197,7 +197,7 @@ export default function EventsPage() {
               const deadlinePassed = isDeadlinePassed(ev.registration_deadline);
               return (
                 <div key={ev.id} className="card fade-in" style={{ animationDelay: `${i * 0.1}s`, cursor: 'pointer' }} onClick={() => navigate(`/events/${ev.id}`)}>
-                  <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
+                  <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,102,204,0.06) 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
                   <div className="flex items-center justify-between" style={{ marginBottom: '0.75rem' }}>
                     <span className={`badge badge-${statusColor[ev.status] || 'cyan'}`}>{ev.status}</span>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(ev.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>

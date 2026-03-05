@@ -119,7 +119,7 @@ export default function EventDetailPage() {
         </button>
 
         <div className="card fade-in" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%)' }}>
-          <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
+          <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,102,204,0.08) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
           <div className="flex items-center gap-2" style={{ marginBottom: '0.75rem' }}>
             <span className={`badge badge-${statusColor[event.status] || 'cyan'}`}>{event.status}</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>

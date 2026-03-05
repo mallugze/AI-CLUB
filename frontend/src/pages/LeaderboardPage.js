@@ -121,7 +121,7 @@ export default function LeaderboardPage() {
         </div>
 
         {overall.length > 0 && (
-          <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,212,255,0.04))', overflow: 'visible', padding: '1.5rem' }}>
+          <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,102,204,0.04))', overflow: 'visible', padding: '1.5rem' }}>
             <h2 style={{ fontFamily: 'Orbitron', fontSize: '1rem', color: 'var(--accent2)', marginBottom: '1.5rem' }}>⚡ Rankings</h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'relative' }}>
@@ -142,14 +142,14 @@ export default function LeaderboardPage() {
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.07), transparent)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
                     <span style={{ fontSize: '1.75rem' }}>🥇</span>
                     <svg width="34" height="34" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                      <rect x="5" y="3" width="14" height="11" rx="2" fill="#0a1628" stroke="#fbbf24" strokeWidth="1.5"/>
+                      <rect x="5" y="3" width="14" height="11" rx="2" fill="#ffffff" stroke="#fbbf24" strokeWidth="1.5"/>
                       <circle cx="9" cy="8" r="2" fill="#fbbf24"/>
                       <circle cx="15" cy="8" r="2" fill="#fbbf24"/>
                       <circle cx="9" cy="8" r="0.8" fill="#000"/>
                       <circle cx="15" cy="8" r="0.8" fill="#000"/>
-                      <rect x="8" y="14" width="8" height="7" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1.5"/>
-                      <rect x="3" y="15" width="4" height="5" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1"/>
-                      <rect x="17" y="15" width="4" height="5" rx="1" fill="#0a1628" stroke="#fbbf24" strokeWidth="1"/>
+                      <rect x="8" y="14" width="8" height="7" rx="1" fill="#ffffff" stroke="#fbbf24" strokeWidth="1.5"/>
+                      <rect x="3" y="15" width="4" height="5" rx="1" fill="#ffffff" stroke="#fbbf24" strokeWidth="1"/>
+                      <rect x="17" y="15" width="4" height="5" rx="1" fill="#ffffff" stroke="#fbbf24" strokeWidth="1"/>
                       <line x1="12" y1="3" x2="12" y2="0" stroke="#fbbf24" strokeWidth="1.5"/>
                       <polygon points="12,0 10,3 14,3" fill="#fbbf24"/>
                     </svg>
@@ -175,12 +175,12 @@ export default function LeaderboardPage() {
                       {rankIcon}
                     </span>
                     <svg width="24" height="24" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                      <rect x="6" y="4" width="12" height="10" rx="2" fill="#0a1628" stroke="#7c3aed" strokeWidth="1.5"/>
+                      <rect x="6" y="4" width="12" height="10" rx="2" fill="#ffffff" stroke="#7c3aed" strokeWidth="1.5"/>
                       <circle cx="9" cy="9" r="1.5" fill="#7c3aed"/>
-                      <circle cx="15" cy="9" r="1.5" fill="#00d4ff"/>
-                      <rect x="8" y="14" width="8" height="7" rx="1" fill="#0a1628" stroke="#7c3aed" strokeWidth="1.5"/>
-                      <rect x="4" y="15" width="3" height="5" rx="1" fill="#0a1628" stroke="#7c3aed" strokeWidth="1"/>
-                      <rect x="17" y="15" width="3" height="5" rx="1" fill="#0a1628" stroke="#7c3aed" strokeWidth="1"/>
+                      <circle cx="15" cy="9" r="1.5" fill="#0066cc"/>
+                      <rect x="8" y="14" width="8" height="7" rx="1" fill="#ffffff" stroke="#7c3aed" strokeWidth="1.5"/>
+                      <rect x="4" y="15" width="3" height="5" rx="1" fill="#ffffff" stroke="#7c3aed" strokeWidth="1"/>
+                      <rect x="17" y="15" width="3" height="5" rx="1" fill="#ffffff" stroke="#7c3aed" strokeWidth="1"/>
                     </svg>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.name}</div>

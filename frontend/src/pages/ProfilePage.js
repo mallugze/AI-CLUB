@@ -78,8 +78,8 @@ export default function ProfilePage() {
       const drawContent = () => {
         // ── TOP BORDER BAR ──
         const topGrad = ctx.createLinearGradient(0, 0, 1400, 0);
-        topGrad.addColorStop(0, '#0a1628');
-        topGrad.addColorStop(0.5, '#00d4ff');
+        topGrad.addColorStop(0, '#ffffff');
+        topGrad.addColorStop(0.5, '#0066cc');
         topGrad.addColorStop(1, '#7c3aed');
         ctx.fillStyle = topGrad;
         ctx.fillRect(0, 0, 1400, 10);
@@ -89,7 +89,7 @@ export default function ProfilePage() {
         ctx.fillRect(0, 890, 1400, 10);
 
         // ── LEFT ACCENT BAR ──
-        ctx.fillStyle = '#00d4ff';
+        ctx.fillStyle = '#0066cc';
         ctx.fillRect(0, 0, 6, 900);
 
         // ── RIGHT ACCENT BAR ──
@@ -99,15 +99,15 @@ export default function ProfilePage() {
         // ── CORNER ORNAMENTS ──
         const corners = [[30, 30], [1370, 30], [30, 870], [1370, 870]];
         corners.forEach(([x, y]) => {
-          ctx.strokeStyle = '#00d4ff';
+          ctx.strokeStyle = '#0066cc';
           ctx.lineWidth = 2;
           ctx.strokeRect(x - 15, y - 15, 30, 30);
-          ctx.fillStyle = '#00d4ff';
+          ctx.fillStyle = '#0066cc';
           ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
         });
 
         // ── HEADER SECTION ──
-        ctx.fillStyle = '#0a1628';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 15px monospace';
         ctx.textAlign = 'center';
         ctx.fillText('PDA COLLEGE OF ENGINEERING KALABURAGI', 700, 55);
@@ -117,17 +117,17 @@ export default function ProfilePage() {
 
         // Horizontal rule
         const hrGrad = ctx.createLinearGradient(100, 0, 1300, 0);
-        hrGrad.addColorStop(0, 'transparent'); hrGrad.addColorStop(0.5, '#00d4ff'); hrGrad.addColorStop(1, 'transparent');
+        hrGrad.addColorStop(0, 'transparent'); hrGrad.addColorStop(0.5, '#0066cc'); hrGrad.addColorStop(1, 'transparent');
         ctx.strokeStyle = hrGrad; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(100, 98); ctx.lineTo(1300, 98); ctx.stroke();
 
         // ── CERTIFICATE OF PARTICIPATION ──
-        ctx.fillStyle = '#0a1628';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 42px Georgia, serif';
         ctx.fillText('CERTIFICATE OF PARTICIPATION', 700, 170);
 
         // Decorative line under title
-        ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2;
+        ctx.strokeStyle = '#0066cc'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(350, 185); ctx.lineTo(1050, 185); ctx.stroke();
 
         // ── THIS CERTIFIES ──
@@ -143,7 +143,7 @@ export default function ProfilePage() {
         // Name underline
         const nameW = ctx.measureText(profile.user.name).width;
         const lineGrad = ctx.createLinearGradient(700 - nameW/2, 0, 700 + nameW/2, 0);
-        lineGrad.addColorStop(0, 'transparent'); lineGrad.addColorStop(0.5, '#0a1628'); lineGrad.addColorStop(1, 'transparent');
+        lineGrad.addColorStop(0, 'transparent'); lineGrad.addColorStop(0.5, '#ffffff'); lineGrad.addColorStop(1, 'transparent');
         ctx.strokeStyle = lineGrad; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(700 - nameW/2, 335); ctx.lineTo(700 + nameW/2, 335); ctx.stroke();
 
@@ -161,7 +161,7 @@ export default function ProfilePage() {
         ctx.fillText('has successfully participated in', 700, 465);
 
         // ── EVENT NAME ──
-        ctx.fillStyle = '#0a1628';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 34px Georgia, serif';
         ctx.fillText(team.event_title, 700, 510);
 
@@ -181,12 +181,12 @@ export default function ProfilePage() {
         ctx.fillText(`Event Date: ${new Date(team.event_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, 700, 645);
 
         // ── HORIZONTAL RULE ──
-        ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+        ctx.strokeStyle = '##1e293b'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(80, 680); ctx.lineTo(1320, 680); ctx.stroke();
 
         // ── SIGNATURE SECTION ──
         // Left signature
-        ctx.fillStyle = '#0a1628';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 14px monospace';
         ctx.textAlign = 'left';
         ctx.fillText('_______________________', 100, 740);
@@ -200,7 +200,7 @@ export default function ProfilePage() {
 
         // Right signature
         ctx.textAlign = 'right';
-        ctx.fillStyle = '#0a1628';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 14px monospace';
         ctx.fillText('_______________________', 1300, 740);
         ctx.fillStyle = '#0f172a';
@@ -223,7 +223,7 @@ export default function ProfilePage() {
         qrImg.onload = () => {
           // QR box background
           ctx.fillStyle = '#ffffff';
-          ctx.strokeStyle = '#e2e8f0';
+          ctx.strokeStyle = '##1e293b';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.roundRect(1165, 695, 110, 110, 8);
@@ -279,7 +279,7 @@ export default function ProfilePage() {
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem' }}>
 
         {/* Profile header */}
-        <div className="card fade-in" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, rgba(0,212,255,0.07), rgba(124,58,237,0.04))' }}>
+        <div className="card fade-in" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, rgba(0,102,204,0.07), rgba(124,58,237,0.04))' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <div style={{
               width: 80, height: 80, borderRadius: '50%', flexShrink: 0,
@@ -290,7 +290,7 @@ export default function ProfilePage() {
                 : 'linear-gradient(135deg, var(--accent), #0099bb)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '2rem', fontWeight: 900, color: '#000', fontFamily: 'Orbitron',
-              boxShadow: '0 0 20px rgba(0,212,255,0.4)',
+              boxShadow: '0 0 20px rgba(0,102,204,0.4)',
             }}>
               {pUser.name.charAt(0).toUpperCase()}
             </div>
