@@ -37,18 +37,23 @@ export default function EventDetailPage() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleCreateTeam = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     setError('');
     const filledNames = teamForm.memberNames.filter(m => m.trim() !== '');
     if (filledNames.length < 1) return setError('Add at least 1 more member name (min 2 including you)');
     if (filledNames.length > 3) return setError('Maximum 3 additional members (4 total including you)');
+    setSubmitting(true);
     try {
       await teamsAPI.create(id, { name: teamForm.name, memberNames: filledNames });
       setShowTeamModal(false);
       setTeamForm({ name: '', memberNames: [''] });
       fetchAll();
     } catch (err) { setError(err.response?.data?.error || 'Error'); }
+    setSubmitting(false);
   };
 
   const handleAssignScore = async (e) => {

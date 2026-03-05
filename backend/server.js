@@ -132,7 +132,7 @@ const auth = (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admins only' });
+  if (req.user.role !== 'admin' && req.user.email !== SUPER_ADMIN_EMAIL) return res.status(403).json({ error: 'Admins only' });
   next();
 };
 
@@ -249,6 +249,13 @@ app.post('/api/events/:eventId/teams', auth, async (req, res) => {
   const eventId = parseInt(req.params.eventId);
   if (!name) return res.status(400).json({ error: 'Team name required' });
   if (req.user.role === 'admin') return res.status(403).json({ error: 'Admins cannot register teams' });
+
+  // Prevent duplicate registration for same event
+  const existing = await query(
+    'SELECT t.id FROM teams t JOIN team_members tm ON tm.team_id = t.id WHERE t.event_id = $1 AND tm.user_id = $2',
+    [eventId, req.user.id]
+  );
+  if (existing.rows[0]) return res.status(400).json({ error: 'You have already registered a team for this event' });
   const extraMembers = (memberNames || []).filter(m => m.trim() !== '');
   const totalCount = 1 + extraMembers.length;
   if (totalCount < 2) return res.status(400).json({ error: 'Minimum 2 members required' });

@@ -10,49 +10,38 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
-
   const handleLogout = () => { logout(); navigate('/login'); };
   const isActive = (path) => location.pathname === path;
 
   return (
     <nav style={{
-      background: 'rgba(5,15,31,0.95)',
-      backdropFilter: 'blur(10px)',
-      borderBottom: '1px solid var(--border)',
+      background: '#ffffff',
+      borderBottom: '1px solid #e2e8f0',
       padding: '0 2rem',
       position: 'sticky',
       top: 0,
       zIndex: 100,
       display: 'flex',
       alignItems: 'center',
-      height: '70px',
+      height: '68px',
       gap: '1.5rem',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
     }}>
-      {/* Logo */}
       <Link to="/events" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
         <img src={logoBase64} alt="AI Yuga" style={{
-          width: 62, height: 62,
+          width: 44, height: 44,
           borderRadius: '50%',
-          boxShadow: '0 0 14px rgba(0,212,255,0.6)',
           objectFit: 'cover',
-          objectPosition: 'center',
-          display: 'block',
-          flexShrink: 0,
-          imageRendering: 'crisp-edges',
-          WebkitFilter: 'contrast(1.05) saturate(1.1)',
+          boxShadow: '0 2px 8px rgba(0,102,204,0.2)',
+          display: 'block', flexShrink: 0,
           filter: 'contrast(1.05) saturate(1.1)',
         }} />
         <div>
-          <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '0.1em', lineHeight: 1 }}>
-            AI YUGA
-          </div>
-          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', letterSpacing: '0.05em', lineHeight: 1.2 }}>
-            PDA COLLEGE • KALABURAGI
-          </div>
+          <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '0.95rem', color: '#0066cc', letterSpacing: '0.08em', lineHeight: 1 }}>AI YUGA</div>
+          <div style={{ fontSize: '0.52rem', color: '#94a3b8', letterSpacing: '0.05em', lineHeight: 1.3 }}>PDA COLLEGE • KALABURAGI</div>
         </div>
       </Link>
 
-      {/* Nav links */}
       <div style={{ display: 'flex', gap: '0.25rem', flex: 1 }}>
         <NavLink to="/events" active={isActive('/events')}>Events</NavLink>
         <NavLink to="/activities" active={isActive('/activities')}>🎫 Activities</NavLink>
@@ -61,21 +50,20 @@ export default function Navbar() {
         {isSuperAdmin && <NavLink to="/users" active={isActive('/users')}>👑 Users</NavLink>}
       </div>
 
-      {/* User info */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text)' }}>{user?.name}</div>
-          <span className={`badge`}
-            style={isSuperAdmin
-              ? { background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', fontSize: '0.65rem' }
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1e293b' }}>{user?.name}</div>
+          <span className="badge" style={
+            isSuperAdmin
+              ? { background: 'rgba(217,119,6,0.12)', color: '#b45309', border: '1px solid rgba(217,119,6,0.25)', fontSize: '0.62rem' }
               : isAdmin
-              ? { background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)', fontSize: '0.65rem' }
-              : { background: 'rgba(0,212,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(0,212,255,0.3)', fontSize: '0.65rem' }
-            }>
+              ? { background: 'rgba(109,40,217,0.1)', color: '#5b21b6', border: '1px solid rgba(109,40,217,0.25)', fontSize: '0.62rem' }
+              : { background: 'rgba(0,102,204,0.1)', color: '#0052a3', border: '1px solid rgba(0,102,204,0.25)', fontSize: '0.62rem' }
+          }>
             {isSuperAdmin ? '👑 Super Admin' : isAdmin ? '⚙ Admin' : '● Member'}
           </span>
         </div>
-        <button onClick={handleLogout} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+        <button onClick={handleLogout} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.9rem' }}>
           Logout
         </button>
       </div>
@@ -87,14 +75,14 @@ function NavLink({ to, active, children }) {
   return (
     <Link to={to} style={{
       textDecoration: 'none',
-      padding: '0.5rem 0.9rem',
+      padding: '0.45rem 0.9rem',
       borderRadius: 8,
       fontSize: '0.82rem',
       fontWeight: 600,
-      color: active ? 'var(--accent)' : 'var(--text-muted)',
-      background: active ? 'rgba(0,212,255,0.1)' : 'transparent',
-      border: active ? '1px solid rgba(0,212,255,0.2)' : '1px solid transparent',
-      transition: 'all 0.2s',
+      color: active ? '#0066cc' : '#64748b',
+      background: active ? 'rgba(0,102,204,0.08)' : 'transparent',
+      border: active ? '1px solid rgba(0,102,204,0.2)' : '1px solid transparent',
+      transition: 'all 0.15s',
       whiteSpace: 'nowrap',
     }}>{children}</Link>
   );
