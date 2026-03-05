@@ -112,7 +112,8 @@ const initDB = async () => {
 
   const hash = bcrypt.hashSync(SUPER_ADMIN_PASSWORD, 10);
   await query(
-    `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'admin') ON CONFLICT (email) DO NOTHING`,
+    `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'admin') 
+     ON CONFLICT (email) DO UPDATE SET password = $3, name = $1`,
     [SUPER_ADMIN_NAME, SUPER_ADMIN_EMAIL, hash]
   );
   console.log('Database ready!');
