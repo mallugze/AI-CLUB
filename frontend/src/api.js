@@ -9,8 +9,8 @@ API.interceptors.request.use((config) => {
 });
 
 export const authAPI = {
-  login: (data) => API.post('/auth/login', data),
-  register: (data) => API.post('/auth/register', data),
+  login: (email, password) => API.post('/auth/login', { email, password }),
+  register: (name, email, password) => API.post('/auth/register', { name, email, password }),
 };
 
 export const eventsAPI = {
