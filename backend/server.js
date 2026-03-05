@@ -8,7 +8,7 @@ const QRCode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || 'ai_club_secret_key_change_in_production';
+const JWT_SECRET = process.env.JWT_SECRET || 'aiyuga_super_secret_jwt_key_2026_pda_college';
 
 const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
 const SUPER_ADMIN_PASSWORD = 'yokoso20';
@@ -146,7 +146,10 @@ const superAdminOnly = (req, res, next) => {
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'All fields required' });
-  if (email === SUPER_ADMIN_EMAIL) return res.status(400).json({ error: 'Email already exists' });
+  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
+  if (name.trim().length < 2) return res.status(400).json({ error: 'Name must be at least 2 characters' });
+  if (email.toLowerCase() === SUPER_ADMIN_EMAIL) return res.status(400).json({ error: 'Email already exists' });
   const hash = bcrypt.hashSync(password, 10);
   try {
     const result = await query(
@@ -249,7 +252,16 @@ app.post('/api/events/:eventId/teams', auth, async (req, res) => {
   const { name, memberNames } = req.body;
   const eventId = parseInt(req.params.eventId);
   if (!name) return res.status(400).json({ error: 'Team name required' });
-  if (req.user.role === 'admin') return res.status(403).json({ error: 'Admins cannot register teams' });
+  if (req.user.role === 'admin' && req.user.email !== SUPER_ADMIN_EMAIL) return res.status(403).json({ error: 'Admins cannot register teams' });
+
+  // Check event exists and deadline
+  const eventCheck = await query('SELECT * FROM events WHERE id = $1', [eventId]);
+  if (!eventCheck.rows[0]) return res.status(404).json({ error: 'Event not found' });
+  const ev = eventCheck.rows[0];
+  if (ev.registration_deadline && new Date(ev.registration_deadline) < new Date()) {
+    return res.status(400).json({ error: 'Registration deadline has passed for this event' });
+  }
+  if (ev.status === 'completed') return res.status(400).json({ error: 'This event is already completed' });
 
   // Prevent duplicate registration for same event
   const existing = await query(
