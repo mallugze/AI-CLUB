@@ -3,7 +3,6 @@ import { usersAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-
 const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
 
 export default function UsersPage() {
@@ -122,6 +121,13 @@ export default function UsersPage() {
                         onClick={() => changeRole(u.id, u.role === 'admin' ? 'member' : 'admin')}
                       >
                         {u.role === 'admin' ? 'Demote' : 'Make Admin'}
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
+                        onClick={() => navigate(`/profile/${u.id}`)}
+                      >
+                        📄 Certificates
                       </button>
                       <button
                         className="btn btn-danger"

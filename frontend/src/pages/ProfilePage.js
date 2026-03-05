@@ -270,6 +270,7 @@ export default function ProfilePage() {
 
   const { user: pUser, teams, totalScore, avgScore } = profile;
   const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
+  const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
 
   return (
     <>
@@ -340,14 +341,16 @@ export default function ProfilePage() {
                   ) : (
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Participated</span>
                   )}
-                  <button
-                    className="btn btn-primary"
-                    style={{ fontSize: '0.78rem', padding: '0.45rem 1rem', opacity: generating === t.team_id ? 0.7 : 1 }}
-                    disabled={generating === t.team_id}
-                    onClick={() => handleDownloadCert(t)}
-                  >
-                    {generating === t.team_id ? '⏳ Generating...' : '📄 Download Certificate'}
-                  </button>
+                  {isSuperAdmin && (
+                    <button
+                      className="btn btn-primary"
+                      style={{ fontSize: '0.78rem', padding: '0.45rem 1rem', opacity: generating === t.team_id ? 0.7 : 1 }}
+                      disabled={generating === t.team_id}
+                      onClick={() => handleDownloadCert(t)}
+                    >
+                      {generating === t.team_id ? '⏳ Generating...' : '📄 Download Certificate'}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
