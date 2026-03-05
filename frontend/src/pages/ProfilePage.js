@@ -48,26 +48,53 @@ export default function ProfilePage() {
   const drawCertificate = ({ team, certId, qrDataUrl }) => {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
-      canvas.width = 1400; canvas.height = 900;
+      const W = 1400, H = 950;
+      canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d');
+      const CX = W / 2;
 
-      // ── WHITE BACKGROUND ──
+      // ── PURE WHITE BACKGROUND ──
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 1400, 900);
+      ctx.fillRect(0, 0, W, H);
 
-      // ── SUBTLE GRID WATERMARK ──
-      ctx.strokeStyle = 'rgba(0,150,200,0.06)';
+      // ── OUTER DECORATIVE BORDER (double) ──
+      ctx.strokeStyle = '#0066cc';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(18, 18, W - 36, H - 36);
+      ctx.strokeStyle = 'rgba(0,102,204,0.25)';
       ctx.lineWidth = 1;
-      for (let x = 0; x < 1400; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 900); ctx.stroke(); }
-      for (let y = 0; y < 900; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1400, y); ctx.stroke(); }
+      ctx.strokeRect(28, 28, W - 56, H - 56);
 
-      // ── LOGO WATERMARK (center, low opacity) ──
+      // ── TOP GRADIENT BAR ──
+      const topGrad = ctx.createLinearGradient(0, 0, W, 0);
+      topGrad.addColorStop(0, '#0066cc');
+      topGrad.addColorStop(0.5, '#6d28d9');
+      topGrad.addColorStop(1, '#0066cc');
+      ctx.fillStyle = topGrad;
+      ctx.fillRect(18, 18, W - 36, 8);
+
+      // ── BOTTOM GRADIENT BAR ──
+      ctx.fillStyle = topGrad;
+      ctx.fillRect(18, H - 26, W - 36, 8);
+
+      // ── CORNER DIAMONDS ──
+      const drawDiamond = (x, y) => {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = '#0066cc';
+        ctx.fillRect(-7, -7, 14, 14);
+        ctx.restore();
+      };
+      [[38, 38], [W - 38, 38], [38, H - 38], [W - 38, H - 38]].forEach(([x,y]) => drawDiamond(x, y));
+
+      // ── LOGO WATERMARK ──
       const drawLogoAndRest = () => {
         const logoImg = new Image();
         logoImg.onload = () => {
           ctx.save();
-          ctx.globalAlpha = 0.06;
-          ctx.drawImage(logoImg, 1400/2 - 200, 900/2 - 200, 400, 400);
+          ctx.globalAlpha = 0.05;
+          ctx.drawImage(logoImg, CX - 180, H/2 - 200, 360, 360);
           ctx.globalAlpha = 1;
           ctx.restore();
           drawContent();
@@ -77,169 +104,140 @@ export default function ProfilePage() {
       };
 
       const drawContent = () => {
-        // ── TOP BORDER BAR ──
-        const topGrad = ctx.createLinearGradient(0, 0, 1400, 0);
-        topGrad.addColorStop(0, '#ffffff');
-        topGrad.addColorStop(0.5, '#0066cc');
-        topGrad.addColorStop(1, '#7c3aed');
-        ctx.fillStyle = topGrad;
-        ctx.fillRect(0, 0, 1400, 10);
-
-        // ── BOTTOM BORDER BAR ──
-        ctx.fillStyle = topGrad;
-        ctx.fillRect(0, 890, 1400, 10);
-
-        // ── LEFT ACCENT BAR ──
-        ctx.fillStyle = '#0066cc';
-        ctx.fillRect(0, 0, 6, 900);
-
-        // ── RIGHT ACCENT BAR ──
-        ctx.fillStyle = '#7c3aed';
-        ctx.fillRect(1394, 0, 6, 900);
-
-        // ── CORNER ORNAMENTS ──
-        const corners = [[30, 30], [1370, 30], [30, 870], [1370, 870]];
-        corners.forEach(([x, y]) => {
-          ctx.strokeStyle = '#0066cc';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(x - 15, y - 15, 30, 30);
-          ctx.fillStyle = '#0066cc';
-          ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
-        });
-
-        // ── HEADER SECTION ──
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 15px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('PDA COLLEGE OF ENGINEERING KALABURAGI', 700, 55);
+
+        // ── CLUB NAME (top) ──
+        ctx.font = 'bold 22px Georgia, serif';
+        ctx.fillStyle = '#0066cc';
+        ctx.letterSpacing = '0.15em';
+        ctx.fillText('AI YUGA CLUB', CX, 75);
+
+        ctx.font = '13px Georgia, serif';
         ctx.fillStyle = '#64748b';
-        ctx.font = '12px monospace';
-        ctx.fillText('DEPARTMENT OF ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING', 700, 78);
+        ctx.fillText('PDA College of Engineering, Kalaburagi', CX, 98);
 
-        // Horizontal rule
-        const hrGrad = ctx.createLinearGradient(100, 0, 1300, 0);
-        hrGrad.addColorStop(0, 'transparent'); hrGrad.addColorStop(0.5, '#0066cc'); hrGrad.addColorStop(1, 'transparent');
-        ctx.strokeStyle = hrGrad; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(100, 98); ctx.lineTo(1300, 98); ctx.stroke();
+        // ── DIVIDER ──
+        const hr = (y, opacity = 0.3) => {
+          const g = ctx.createLinearGradient(120, 0, W - 120, 0);
+          g.addColorStop(0, 'transparent');
+          g.addColorStop(0.5, `rgba(0,102,204,${opacity})`);
+          g.addColorStop(1, 'transparent');
+          ctx.strokeStyle = g; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(120, y); ctx.lineTo(W - 120, y); ctx.stroke();
+        };
+        hr(115, 0.4);
 
-        // ── CERTIFICATE OF PARTICIPATION ──
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 42px Georgia, serif';
-        ctx.fillText('CERTIFICATE OF PARTICIPATION', 700, 170);
-
-        // Decorative line under title
-        ctx.strokeStyle = '#0066cc'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(350, 185); ctx.lineTo(1050, 185); ctx.stroke();
+        // ── CERTIFICATE TITLE ──
+        ctx.font = 'bold 13px Georgia, serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('— CERTIFICATE OF PARTICIPATION —', CX, 150);
 
         // ── THIS CERTIFIES ──
+        ctx.font = 'italic 19px Georgia, serif';
         ctx.fillStyle = '#475569';
-        ctx.font = '20px Georgia, serif';
-        ctx.fillText('This is to certify that', 700, 240);
+        ctx.fillText('This is to proudly certify that', CX, 200);
 
-        // ── PARTICIPANT NAME ──
-        ctx.font = 'bold 62px Georgia, serif';
+        // ── PARTICIPANT NAME (largest element) ──
+        ctx.font = 'bold 68px Georgia, serif';
         ctx.fillStyle = '#0f172a';
-        ctx.fillText(profile.user.name, 700, 320);
+        ctx.fillText(profile.user.name, CX, 295);
 
         // Name underline
-        const nameW = ctx.measureText(profile.user.name).width;
-        const lineGrad = ctx.createLinearGradient(700 - nameW/2, 0, 700 + nameW/2, 0);
-        lineGrad.addColorStop(0, 'transparent'); lineGrad.addColorStop(0.5, '#ffffff'); lineGrad.addColorStop(1, 'transparent');
-        ctx.strokeStyle = lineGrad; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(700 - nameW/2, 335); ctx.lineTo(700 + nameW/2, 335); ctx.stroke();
+        const nw = ctx.measureText(profile.user.name).width;
+        const nlg = ctx.createLinearGradient(CX - nw/2, 0, CX + nw/2, 0);
+        nlg.addColorStop(0, 'transparent');
+        nlg.addColorStop(0.3, '#0066cc');
+        nlg.addColorStop(0.7, '#6d28d9');
+        nlg.addColorStop(1, 'transparent');
+        ctx.strokeStyle = nlg; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(CX - nw/2, 310); ctx.lineTo(CX + nw/2, 310); ctx.stroke();
 
-        // ── TEAM & PARTICIPATION ──
+        // ── TEAM ──
+        ctx.font = '19px Georgia, serif';
         ctx.fillStyle = '#475569';
-        ctx.font = '20px Georgia, serif';
-        ctx.fillText(`as a member of Team`, 700, 385);
+        ctx.fillText('as a member of Team', CX, 360);
 
-        ctx.fillStyle = '#7c3aed';
-        ctx.font = 'bold 28px Georgia, serif';
-        ctx.fillText(`"${team.team_name}"`, 700, 420);
+        ctx.font = 'bold 26px Georgia, serif';
+        ctx.fillStyle = '#6d28d9';
+        ctx.fillText(`" ${team.team_name} "`, CX, 398);
 
+        ctx.font = '19px Georgia, serif';
         ctx.fillStyle = '#475569';
-        ctx.font = '20px Georgia, serif';
-        ctx.fillText('has successfully participated in', 700, 465);
+        ctx.fillText('has successfully participated in', CX, 442);
 
         // ── EVENT NAME ──
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 34px Georgia, serif';
-        ctx.fillText(team.event_title, 700, 510);
+        ctx.font = 'bold 32px Georgia, serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(team.event_title, CX, 490);
 
-        // ── SCORE ──
+        // ── SCORE BOX ──
         if (team.score) {
+          const boxW = 280, boxH = 80, boxX = CX - 140, boxY = 515;
+          const boxGrad = ctx.createLinearGradient(boxX, boxY, boxX + boxW, boxY);
+          boxGrad.addColorStop(0, 'rgba(0,102,204,0.08)');
+          boxGrad.addColorStop(1, 'rgba(109,40,217,0.08)');
+          ctx.fillStyle = boxGrad;
+          ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, boxH, 12); ctx.fill();
+          ctx.strokeStyle = 'rgba(0,102,204,0.2)'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, boxH, 12); ctx.stroke();
+
+          ctx.font = '13px sans-serif';
           ctx.fillStyle = '#64748b';
-          ctx.font = '18px Georgia, serif';
-          ctx.fillText('with a score of', 700, 555);
+          ctx.fillText('SCORE ACHIEVED', CX, 538);
+          ctx.font = 'bold 36px Georgia, serif';
           ctx.fillStyle = '#d97706';
-          ctx.font = 'bold 42px Orbitron, monospace';
-          ctx.fillText(`${team.score}  /  10`, 700, 605);
+          ctx.fillText(`${team.score}  /  10`, CX, 578);
         }
 
-        // ── DATE ──
+        // ── EVENT DATE ──
+        const dateY = team.score ? 630 : 545;
+        ctx.font = '14px sans-serif';
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '15px monospace';
-        ctx.fillText(`Event Date: ${new Date(team.event_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, 700, 645);
+        ctx.fillText(`Event Date: ${new Date(team.event_date).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })}`, CX, dateY);
 
-        // ── HORIZONTAL RULE ──
-        ctx.strokeStyle = '##1e293b'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(80, 680); ctx.lineTo(1320, 680); ctx.stroke();
+        hr(dateY + 25, 0.2);
 
-        // ── SIGNATURE SECTION ──
-        // Left signature
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText('_______________________', 100, 740);
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 15px sans-serif';
-        ctx.fillText('Faculty Coordinator', 100, 762);
-        ctx.fillStyle = '#64748b';
-        ctx.font = '12px sans-serif';
-        ctx.fillText('Dept. of AI & Machine Learning', 100, 780);
-        ctx.fillText('PDA College of Engineering', 100, 795);
-
-        // Right signature
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px monospace';
-        ctx.fillText('_______________________', 1300, 740);
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 15px sans-serif';
-        ctx.fillText('Club President', 1300, 762);
-        ctx.fillStyle = '#64748b';
-        ctx.font = '12px sans-serif';
-        ctx.fillText('AI YUGA Club', 1300, 780);
-        ctx.fillText('PDA College of Engineering', 1300, 795);
+        // ── SIGNATURES ──
+        const sigY = dateY + 80;
+        const drawSig = (x, align, title, sub1, sub2) => {
+          ctx.textAlign = align;
+          ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+          ctx.beginPath();
+          const lx = align === 'left' ? x : x - 160;
+          ctx.moveTo(lx, sigY - 20); ctx.lineTo(lx + 160, sigY - 20); ctx.stroke();
+          ctx.font = 'bold 14px sans-serif'; ctx.fillStyle = '#1e293b';
+          ctx.fillText(title, x, sigY);
+          ctx.font = '12px sans-serif'; ctx.fillStyle = '#64748b';
+          ctx.fillText(sub1, x, sigY + 18);
+          ctx.fillText(sub2, x, sigY + 34);
+        };
+        drawSig(120, 'left', 'Department HOD', 'Dept. of AI & Machine Learning', 'PDA College of Engineering');
+        drawSig(W - 120, 'right', 'AI YUGA Club President', 'AI YUGA Club', 'PDA College of Engineering');
 
         // ── CERT ID (bottom center) ──
         ctx.textAlign = 'center';
+        ctx.font = '11px monospace';
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '12px monospace';
-        ctx.fillText(`Certificate ID: ${certId}`, 700, 758);
-        ctx.fillText(`Verify at: ai-club-sigma.vercel.app/verify/${certId}`, 700, 775);
+        ctx.fillText(`Certificate ID: ${certId}`, CX, sigY + 10);
+        ctx.fillText(`Verify at: ai-club-sigma.vercel.app/verify/${certId}`, CX, sigY + 26);
 
-        // ── QR CODE ──
+        // ── QR CODE (bottom right, above corner) ──
         const qrImg = new Image();
         qrImg.onload = () => {
-          // QR box background
+          const qx = W - 145, qy = H - 175;
           ctx.fillStyle = '#ffffff';
-          ctx.strokeStyle = '##1e293b';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.roundRect(1165, 695, 110, 110, 8);
-          ctx.fill(); ctx.stroke();
-          ctx.drawImage(qrImg, 1170, 700, 100, 100);
-          ctx.fillStyle = '#94a3b8';
-          ctx.font = '9px monospace';
-          ctx.fillText('SCAN TO VERIFY', 1220, 817);
+          ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.roundRect(qx - 5, qy - 5, 115, 115, 8); ctx.fill(); ctx.stroke();
+          ctx.drawImage(qrImg, qx, qy, 105, 105);
+          ctx.font = 'bold 9px monospace';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText('SCAN TO VERIFY', qx + 52, qy + 120);
 
           // ── FOOTER ──
+          ctx.font = '10px monospace';
           ctx.fillStyle = '#cbd5e1';
-          ctx.font = '11px monospace';
-          ctx.fillText(`AI YUGA • ai-club-sigma.vercel.app • ${new Date().getFullYear()}`, 700, 855);
+          ctx.fillText(`AI YUGA • ai-club-sigma.vercel.app • ${new Date().getFullYear()}`, CX, H - 38);
 
-          // ── DOWNLOAD ──
           const link = document.createElement('a');
           link.download = `AIY_Certificate_${certId}.png`;
           link.href = canvas.toDataURL('image/png', 1.0);
