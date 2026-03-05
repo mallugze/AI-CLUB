@@ -434,7 +434,7 @@ app.get('/api/profile/:userId', auth, async (req, res) => {
   if (!user.rows[0]) return res.status(404).json({ error: 'User not found' });
 
   const teams = await query(`
-    SELECT t.id as team_id, t.name as team_name, e.title as event_title, e.date as event_date, s.score
+    SELECT t.id as team_id, t.name as team_name, e.id as event_id, e.title as event_title, e.date as event_date, s.score
     FROM team_members tm
     JOIN teams t ON t.id = tm.team_id
     JOIN events e ON e.id = t.event_id
