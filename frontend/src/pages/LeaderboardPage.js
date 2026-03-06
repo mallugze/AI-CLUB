@@ -59,6 +59,13 @@ export default function LeaderboardPage() {
     return i >= nonFirstTeams.length - revealedCount;
   });
 
+  const [search, setSearch] = useState('');
+
+  const filteredOverall = overall.filter(t =>
+    t.name.toLowerCase().includes(search.toLowerCase()) ||
+    (t.members || '').toLowerCase().includes(search.toLowerCase())
+  );
+
   const byEvent = overall.reduce((acc, item) => {
     const key = item.event_title;
     if (!acc[key]) acc[key] = { title: key, date: item.event_date, teams: [] };
@@ -116,8 +123,19 @@ export default function LeaderboardPage() {
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem' }}>
         <div style={{ marginBottom: '2rem', animation: 'fadeInUp 0.5s ease both' }}>
-          <h1 style={{ fontSize: '1.75rem', color: 'var(--accent)', letterSpacing: '0.05em' }}>🏆 Club Leaderboard</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Overall performance across all events</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h1 style={{ fontSize: '1.75rem', color: 'var(--accent)', letterSpacing: '0.05em' }}>🏆 Club Leaderboard</h1>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Overall performance across all events</p>
+            </div>
+            <input
+              className="input"
+              placeholder="🔍 Search team or member..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ width: 240, fontSize: '0.875rem' }}
+            />
+          </div>
         </div>
 
         {overall.length > 0 && (

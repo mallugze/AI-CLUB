@@ -14,6 +14,21 @@ const SUPER_ADMIN_EMAIL = 'mallug@gmail.com';
 const SUPER_ADMIN_PASSWORD = 'yokoso20';
 const SUPER_ADMIN_NAME = 'Mallug';
 
+// ── Simple in-memory rate limiter ──
+const loginAttempts = new Map();
+const rateLimit = (maxAttempts, windowMs) => (req, res, next) => {
+  const key = req.ip;
+  const now = Date.now();
+  const attempts = loginAttempts.get(key) || [];
+  const recent = attempts.filter(t => now - t < windowMs);
+  if (recent.length >= maxAttempts) {
+    return res.status(429).json({ error: 'Too many attempts. Please wait a minute and try again.' });
+  }
+  recent.push(now);
+  loginAttempts.set(key, recent);
+  next();
+};
+
 app.use(cors());
 app.use(express.json());
 
@@ -165,7 +180,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', rateLimit(10, 60000), async (req, res) => {
   const { email, password } = req.body;
   const result = await query('SELECT * FROM users WHERE email = $1', [email]);
   const user = result.rows[0];
@@ -524,6 +539,103 @@ app.get('/api/certificates/qr/:certId', auth, async (req, res) => {
     color: { dark: '#1a1a2e', light: '#ffffff' }
   });
   res.json({ qr });
+});
+
+// ── TEAM EDIT ──────────────────────────────────────────────────────────────────
+app.put('/api/teams/:id', auth, async (req, res) => {
+  const { name, memberNames } = req.body;
+  const team = await query('SELECT * FROM teams WHERE id = $1', [req.params.id]);
+  if (!team.rows[0]) return res.status(404).json({ error: 'Team not found' });
+  const isSuperAdmin = req.user.email === SUPER_ADMIN_EMAIL;
+  const isOwner = team.rows[0].created_by === req.user.id;
+  if (!isSuperAdmin && !isOwner) return res.status(403).json({ error: 'Not allowed' });
+  if (name) await query('UPDATE teams SET name = $1 WHERE id = $2', [name, req.params.id]);
+  if (memberNames && Array.isArray(memberNames)) {
+    await query('DELETE FROM team_members WHERE team_id = $1 AND user_id = 0', [req.params.id]);
+    for (const mname of memberNames.filter(m => m.trim())) {
+      await query('INSERT INTO team_members (team_id, user_id, member_name) VALUES ($1, 0, $2)', [req.params.id, mname.trim()]);
+    }
+  }
+  res.json({ success: true });
+});
+
+// ── BULK SCORES ────────────────────────────────────────────────────────────────
+app.post('/api/scores/bulk', auth, adminOnly, async (req, res) => {
+  const { scores } = req.body; // [{ teamId, eventId, score, note }]
+  if (!Array.isArray(scores)) return res.status(400).json({ error: 'scores array required' });
+  for (const s of scores) {
+    if (s.score === '' || s.score === null || s.score === undefined) continue;
+    const score = parseFloat(s.score);
+    if (isNaN(score) || score < 0 || score > 10) continue;
+    await query(
+      `INSERT INTO scores (team_id, event_id, score, note) VALUES ($1, $2, $3, $4)
+       ON CONFLICT (team_id, event_id) DO UPDATE SET score = $3, note = $4`,
+      [s.teamId, s.eventId, score, s.note || '']
+    );
+  }
+  res.json({ success: true });
+});
+
+// ── EVENT SUMMARY ──────────────────────────────────────────────────────────────
+app.get('/api/events/:eventId/summary', auth, adminOnly, async (req, res) => {
+  const { eventId } = req.params;
+  const event = await query('SELECT * FROM events WHERE id = $1', [eventId]);
+  if (!event.rows[0]) return res.status(404).json({ error: 'Event not found' });
+
+  const teams = await query(`
+    SELECT t.id, t.name,
+      (SELECT STRING_AGG(tm.member_name, ', ') FROM team_members tm WHERE tm.team_id = t.id) as members,
+      s.score, s.note
+    FROM teams t
+    LEFT JOIN scores s ON s.team_id = t.id AND s.event_id = $1
+    WHERE t.event_id = $1
+    ORDER BY s.score DESC NULLS LAST
+  `, [eventId]);
+
+  const scored = teams.rows.filter(t => t.score != null);
+  const totalParticipants = teams.rows.reduce((acc, t) => acc + (t.members ? t.members.split(', ').length : 0), 0);
+
+  res.json({
+    event: event.rows[0],
+    teams: teams.rows,
+    totalTeams: teams.rows.length,
+    totalParticipants,
+    highestScore: scored[0]?.score || null,
+    winner: scored[0] || null,
+    avgScore: scored.length ? (scored.reduce((a, t) => a + parseFloat(t.score), 0) / scored.length).toFixed(2) : null,
+  });
+});
+
+// ── EXPORT TEAMS CSV ───────────────────────────────────────────────────────────
+app.get('/api/events/:eventId/export', async (req, res) => {
+  // Support token via query param for direct download links
+  const token = req.headers.authorization?.split(' ')[1] || req.query.token;
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'admin' && decoded.email !== SUPER_ADMIN_EMAIL) return res.status(403).json({ error: 'Admins only' });
+  } catch { return res.status(401).json({ error: 'Invalid token' }); }
+
+  const { eventId } = req.params;
+  const event = await query('SELECT * FROM events WHERE id = $1', [eventId]);
+  const teams = await query(`
+    SELECT t.name as team_name,
+      (SELECT STRING_AGG(tm.member_name, ' | ') FROM team_members tm WHERE tm.team_id = t.id) as members,
+      s.score, s.note
+    FROM teams t
+    LEFT JOIN scores s ON s.team_id = t.id AND s.event_id = $1
+    WHERE t.event_id = $1
+    ORDER BY s.score DESC NULLS LAST, t.name
+  `, [eventId]);
+
+  let csv = 'Rank,Team Name,Members,Score,Feedback\n';
+  teams.rows.forEach((t, i) => {
+    csv += `${i+1},"${t.team_name}","${t.members || ''}","${t.score || ''}","${t.note || ''}"\n`;
+  });
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="${event.rows[0]?.title || 'event'}_teams.csv"`);
+  res.send(csv);
 });
 
 app.listen(PORT, () => console.log(`AI Club server running on port ${PORT}`));

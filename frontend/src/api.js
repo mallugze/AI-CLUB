@@ -13,21 +13,25 @@ export const authAPI = {
   register: (name, email, password) => API.post('/auth/register', { name, email, password }),
 };
 
-export const eventsAPI = {
-  getAll: () => API.get('/events'),
-  create: (data) => API.post('/events', data),
-  update: (id, data) => API.put(`/events/${id}`, data),
-  delete: (id) => API.delete(`/events/${id}`),
-};
-
 export const teamsAPI = {
   getByEvent: (eventId) => API.get(`/events/${eventId}/teams`),
   create: (eventId, data) => API.post(`/events/${eventId}/teams`, data),
+  update: (id, data) => API.put(`/teams/${id}`, data),
   delete: (id) => API.delete(`/teams/${id}`),
 };
 
 export const scoresAPI = {
   assign: (data) => API.post('/scores', data),
+  bulk: (scores) => API.post('/scores/bulk', { scores }),
+};
+
+export const eventsAPI = {
+  getAll: () => API.get('/events'),
+  create: (data) => API.post('/events', data),
+  update: (id, data) => API.put(`/events/${id}`, data),
+  delete: (id) => API.delete(`/events/${id}`),
+  summary: (id) => API.get(`/events/${id}/summary`),
+  exportCSV: (id) => `https://ai-club-backend-8xdp.onrender.com/api/events/${id}/export`,
 };
 
 export const leaderboardAPI = {
